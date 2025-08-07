@@ -5,3 +5,4 @@ logs/
 venv/
 poetry.lock
 .idea
+.vscode
