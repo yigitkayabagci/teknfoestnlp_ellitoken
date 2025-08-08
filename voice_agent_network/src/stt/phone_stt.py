@@ -6,7 +6,7 @@ from twilio.twiml.voice_response import VoiceResponse
 from .base_stt import BaseSTT
 from dotenv import load_dotenv
 
-load_dotenv() 
+load_dotenv()
 
 ACCOUNT_SID = os.getenv("ACCOUNT_SID")
 AUTH_TOKEN = os.getenv("AUTH_TOKEN")
