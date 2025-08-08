@@ -33,7 +33,7 @@ class MedGemma:
         self.model_variant = model_variant
         self.device_map = device_map
         self.folder_path = os.path.join(os.getcwd(), "../src/agentic_network/agents/LLM_Models/")
-        self.folder_path += self.model_variant._folder_name
+        self.folder_path += self.model_variant.value
         self.folder_path = os.path.normpath(self.folder_path)
 
         self.model = self._load_model(use_quantized)

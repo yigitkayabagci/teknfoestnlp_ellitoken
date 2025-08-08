@@ -1,6 +1,6 @@
 from voice_agent_network.src.agentic_network.agents.LLM_Models.MedGemma import MedGemma
 from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
-medgemma = MedGemma(False)
+medgemma = MedGemma(False, device_map=Device.AUTO)
 
 #EXAMPLE
 def print_example():
