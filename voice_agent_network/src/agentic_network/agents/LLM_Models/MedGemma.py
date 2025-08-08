@@ -1,32 +1,10 @@
+from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
 import torch
+import os
 from enum import Enum
 from typing import List, Dict
-
-print("All libraries are imported.")
-
-
-class Variant(Enum):
-    """
-    Represents different MedGemma model variants.
-
-    NOTE: These are assumed to be local folder names in the 'medgemma_models' directory.
-    To use a Hugging Face Hub repository, you would use 'google/medgemma-4b-it' etc.
-    """
-    MEDGEMMA_4B_IT = "medgemma_models/medgemma-4b-it"
-    MEDGEMMA_27B_IT = "medgemma_models/medgemma-27b-it"
-    MEDGEMMA_27B_TEXT_IT = "medgemma_models/medgemma-27b-text-it"
-
-
-class Device(Enum):
-    """
-    Represents different device types for model loading.
-    """
-    CUDA = "cuda"  # NVIDIA GPUs
-    MPS = "mps"  # Apple Silicon GPUs
-    AUTO = "auto"  # Let Hugging Face determine the best device
-    CPU = "cpu"  # CPU only
 
 
 class MedGemma:
@@ -34,6 +12,16 @@ class MedGemma:
     A class to load MedGemma models and their corresponding processors/tokenizers.
     The loaded model and processor are available as instance variables.
     """
+
+    class Variant(Enum):
+        """
+        Represents different MedGemma model variants.
+
+        NOTE: These are assumed to be local folder names in the 'medgemma_models' directory.
+        """
+        MEDGEMMA_4B_IT = "medgemma_models/medgemma-4b-it"
+        MEDGEMMA_27B_IT = "medgemma_models/medgemma-27b-it"
+        MEDGEMMA_27B_TEXT_IT = "medgemma_models/medgemma-27b-text-it"
 
     def __init__(self,
                  use_quantized: bool,
@@ -44,6 +32,9 @@ class MedGemma:
         # We store the variant and device as instance variables
         self.model_variant = model_variant
         self.device_map = device_map
+        self.folder_path = os.path.join(os.getcwd(), "../src/agentic_network/agents/LLM_Models/")
+        self.folder_path += self.model_variant._folder_name
+        self.folder_path = os.path.normpath(self.folder_path)
 
         self.model = self._load_model(use_quantized)
         self.processor = self._load_processor()
@@ -57,7 +48,7 @@ class MedGemma:
 
     def _load_model(self, use_quantized: bool):
         """
-        Loads the MedGemma model from a local directory or Hugging Face Hub.
+        Loads the MedGemma model from a local directory.
         Quantizes the model to 4-bit if `use_quantized` is True.
         """
         quantization_config = BitsAndBytesConfig(load_in_4bit=True) if use_quantized else None
@@ -65,14 +56,14 @@ class MedGemma:
         # Determine which model class to use based on the model variant name
         if "text" in self.model_variant.value:
             model = AutoModelForCausalLM.from_pretrained(
-                self.model_variant.value,
+                self.folder_path,
                 torch_dtype=torch.bfloat16,
                 device_map=self.device_map.value,
                 quantization_config=quantization_config
             )
         else:
             model = AutoModelForImageTextToText.from_pretrained(
-                self.model_variant.value,
+                self.folder_path,
                 torch_dtype=torch.bfloat16,
                 device_map=self.device_map.value,
                 quantization_config=quantization_config
@@ -86,9 +77,9 @@ class MedGemma:
         """
         # Use .value to get the string from the Enum
         if "text" in self.model_variant.value:
-            processor = AutoTokenizer.from_pretrained(self.model_variant.value)
+            processor = AutoTokenizer.from_pretrained(self.folder_path)
         else:
-            processor = AutoProcessor.from_pretrained(self.model_variant.value)
+            processor = AutoProcessor.from_pretrained(self.folder_path)
 
         return processor
 

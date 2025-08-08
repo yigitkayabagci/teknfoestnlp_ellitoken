@@ -1,17 +1,13 @@
-from voice_agent_network.src.agentic_network.agents.LLM_Models.MedGemma import MedGemma
+from voice_agent_network.src.agentic_network.agents.LLM_Models.Gemma import Gemma
 from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
-medgemma = MedGemma(False)
+medgemma = Gemma(True, model_variant= Gemma.Variant.GEMMA_3_1B_IT, device_map= Device.MPS)
 
 #EXAMPLE
 def print_example():
-    role_instruction = "You are a helpful medical assistant."
-    prompt = "Kolum kırılırsa ne yapmalıyım?"
+    role_instruction = "You are a helpful assistant."
+    prompt = "Ankara hangi ülkede?"
 
     messages = [
-        {
-            "role": "system",
-            "content": [{"type": "text", "text": role_instruction}]
-        },
         {
             "role": "user",
             "content": [
