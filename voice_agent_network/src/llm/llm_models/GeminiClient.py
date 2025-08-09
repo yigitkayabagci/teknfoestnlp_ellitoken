@@ -1,69 +1,83 @@
+from __future__ import annotations
 from typing import List, Dict, Optional, Tuple
 from dotenv import load_dotenv
+from llm.LlmClient import LlmClient
 import os
-import json
 import requests
-import re
 import sys
 
 try:
     sys.stdout.reconfigure(encoding="utf-8")
+
 except Exception:
     pass
 
 
-class GeminiClient:
+class GeminiClient(LlmClient):
     """
-    Minimal wrapper for Google Gemini (generateContent) REST API.
-    - Builds proper payload from a list of {role, content} messages.
-    - Supports a 'system' message via system_instruction.
-    - Extracts model text safely.
-    - Detects TOOL_CALL: {...} lines when you use the tool-call protocol in your system prompt.
+    Minimal wrapper for Google Gemini (generateContent) REST API,
+    implemented on top of AIClient.
     """
 
-    def __init__(self, api_key: Optional[str] = None, endpoint: Optional[str] = None, timeout: int = 30):
-        load_dotenv()  # will auto-discover .env in project
+    def __init__(self, api_key: Optional[str] = None, endpoint: Optional[str] = None, timeout: int = 30, **kwargs):
+        # kwargs lets you pass tool_call_regex=... if you customize the protocol
+        super().__init__(**kwargs)
+
+        load_dotenv()
         self.api_key = api_key or os.getenv("GEMINI_KEY")
         self.url = endpoint or os.getenv("GEMINI_ENDPOINT")
         self.timeout = timeout
+
         if not self.api_key or not self.url:
             raise ValueError("Missing GEMINI_KEY or GEMINI_ENDPOINT")
 
         self.session = requests.Session()
         self.headers = {"Content-Type": "application/json"}
 
-    # --- Public API ---------------------------------------------------------
-
-    def chat(self, messages_json: List[Dict]) -> Dict:
-        """
-        Send a conversation (list of {role, content}) and return:
-        {
-          "text": <model_text_or_empty_string>,
-          "raw": <full_response_json>,
-          "tool_call": <dict_or_None_if_not_detected>
-        }
-        """
-        payload = self._build_payload(messages_json)
-        resp = self._post(payload)
-        text = self._extract_text(resp)
-        tool_call = self._maybe_parse_tool_call(text)
-        return {"text": text, "raw": resp, "tool_call": tool_call}
-
-    # --- Internals ----------------------------------------------------------
+    # --- AIClient hooks -----------------------------------------------------
 
     def _build_payload(self, messages_json: List[Dict]) -> Dict:
         """
-        Convert your messages into the Gemini REST payload.
-        - 'system' becomes system_instruction
-        - 'user' -> role 'user'
-        - 'assistant' -> role 'model'
+        Convert messages into the Gemini REST payload.
+        - 'system' -> system_instruction
+        - 'user'   -> role 'user'
+        - 'assistant'/'model' -> role 'model'
         """
         system_prompt, contents = self._split_messages(messages_json)
 
         payload = {"contents": contents}
-        if system_prompt:
-            payload["system_instruction"] = {"parts": [{"text": system_prompt}]}
+        if system_prompt: payload["system_instruction"] = {"parts": [{"text": system_prompt}]}
+
         return payload
+
+    def _post(self, payload: Dict) -> Dict:
+        r = self.session.post(
+            self.url,
+            params={"key": self.api_key},
+            headers=self.headers,
+            json=payload,
+            timeout=self.timeout,
+        )
+        r.raise_for_status()
+        return r.json()
+
+    def _extract_text(self, resp: Dict) -> str:
+        """
+        Safely pull the first candidate text. Returns "" if missing.
+        """
+        try:
+            candidates = resp.get("candidates", [])
+            if not candidates: return ""
+
+            parts = candidates[0].get("content", {}).get("parts", [])
+            texts = [p.get("text", "") for p in parts if "text" in p]
+
+            return "".join(texts)
+
+        except Exception:
+            return ""
+
+    # --- Internals ----------------------------------------------------------
 
     def _split_messages(self, messages_json: List[Dict]) -> Tuple[Optional[str], List[Dict]]:
         system_prompt = None
@@ -88,46 +102,7 @@ class GeminiClient:
 
         return system_prompt, contents
 
-    def _post(self, payload: Dict) -> Dict:
-        r = self.session.post(
-            self.url,
-            params={"key": self.api_key},
-            headers=self.headers,
-            json=payload,
-            timeout=self.timeout,
-        )
-        r.raise_for_status()
-        return r.json()
 
-    def _extract_text(self, resp: Dict) -> str:
-        """
-        Safely pull the first candidate text. Returns "" if missing.
-        """
-        try:
-            candidates = resp.get("candidates", [])
-            if not candidates:
-                return ""
-            parts = candidates[0].get("content", {}).get("parts", [])
-            # Concatenate all text parts if present
-            texts = [p.get("text", "") for p in parts if "text" in p]
-            return "".join(texts)
-        except Exception:
-            return ""
-
-    def _maybe_parse_tool_call(self, text: str) -> Optional[Dict]:
-        """
-        Detect and parse: TOOL_CALL: {"name": "...", "args": {...}}
-        Returns dict or None.
-        """
-        if not text:
-            return None
-        m = re.match(r'^TOOL_CALL:\s*(\{.*\})\s*$', text.strip(), flags=re.DOTALL)
-        if not m:
-            return None
-        try:
-            return json.loads(m.group(1))
-        except Exception:
-            return None
 
 # EXAMPLE USAGE
 #
