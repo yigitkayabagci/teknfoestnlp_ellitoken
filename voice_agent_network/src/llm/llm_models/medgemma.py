@@ -1,4 +1,4 @@
-from voice_agent_network.src.llm.devices import Device
+from llm.devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
 import torch

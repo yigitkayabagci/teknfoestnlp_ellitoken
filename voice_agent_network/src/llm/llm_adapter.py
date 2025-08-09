@@ -5,7 +5,7 @@ from uuid import uuid4
 from copy import copy
 from typing import List, Dict, Sequence, Optional
 
-from llm.llm_models.GeminiClient import GeminiClient
+from llm.llm_models.gemini_client import GeminiClient
 
 from langchain_core.messages import (
     BaseMessage,
