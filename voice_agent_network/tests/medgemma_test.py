@@ -1,5 +1,5 @@
-from voice_agent_network.src.agentic_network.agents.LLM_Models.MedGemma import MedGemma
-from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
+from voice_agent_network.src.llm.llm_models.medgemma import MedGemma
+from voice_agent_network.src.llm.devices import Device
 medgemma = MedGemma(False, device_map=Device.AUTO)
 
 #EXAMPLE

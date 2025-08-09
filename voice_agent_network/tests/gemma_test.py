@@ -1,6 +1,6 @@
-from voice_agent_network.src.agentic_network.agents.LLM_Models.Gemma import Gemma
-from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
-medgemma = Gemma(False, model_variant= Gemma.Variant.GEMMA_3_1B_IT, device_map= Device.CUDA)
+from voice_agent_network.src.llm.llm_models.gemma import Gemma
+from voice_agent_network.src.llm.devices import Device
+medgemma = Gemma(False, model_variant= Gemma.Variant.GEMMA_3_1B_IT, device_map= Device.AUTO)
 
 #EXAMPLE
 def print_example():

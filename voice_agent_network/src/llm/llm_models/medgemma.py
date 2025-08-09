@@ -1,4 +1,4 @@
-from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
+from voice_agent_network.src.llm.devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
 import torch
@@ -32,7 +32,7 @@ class MedGemma:
         # We store the variant and device as instance variables
         self.model_variant = model_variant
         self.device_map = device_map
-        self.folder_path = os.path.join(os.getcwd(), "../src/agentic_network/agents/llm/")
+        self.folder_path = os.path.join(os.getcwd(), "../src/llm/llm_models/model_files/")
         self.folder_path += self.model_variant.value
         self.folder_path = os.path.normpath(self.folder_path)
 

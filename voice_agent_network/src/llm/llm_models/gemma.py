@@ -1,4 +1,4 @@
-from voice_agent_network.src.agentic_network.agents.LLM_Models.Devices import Device
+from voice_agent_network.src.llm.devices import Device
 from transformers import (BitsAndBytesConfig, AutoModelForCausalLM, AutoTokenizer)
 from llama_cpp import Llama
 import accelerate
@@ -45,7 +45,7 @@ class Gemma:
         self.model_variant = model_variant
         self.device_map = device_map
         self.use_quantized = use_quantized
-        self.folder_path = os.path.join(os.getcwd(), "../src/agentic_network/agents/llm/")
+        self.folder_path = os.path.join(os.getcwd(), "../src/llm/llm_models/model_files/")
         self.folder_path += self.model_variant._folder_name
         self.folder_path = os.path.normpath(self.folder_path)
 
