@@ -9,8 +9,7 @@ messages = [
     {
         "role": "user",
         "content": [
-            {"type": "image", "url": "https://huggingface.co/datasets/huggingface/documentation-images/resolve/main/p-blog/candy.JPG"},
-            {"type": "text", "text": "What animal is on the candy?"}
+            {"type": "text", "text": "Who are you?"}
         ]
     },
 ]
