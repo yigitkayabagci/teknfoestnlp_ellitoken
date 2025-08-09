@@ -7,3 +7,6 @@ logs/
 poetry.lock
 .idea
 .vscode
+/voice_agent_network/src/llm/llm_models/model_files/gemma_models/
+/voice_agent_network/src/llm/llm_models/model_files/medgemma_models/
+/voice_agent_network/tests/topic_agent.py
