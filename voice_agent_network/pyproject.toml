@@ -28,7 +28,7 @@ dependencies = [
 
 [tool.poetry]
 packages = [
-    {include = "llm_models", from = "src"}
+    {include = "llm", from = "src"},
 ]
 
 

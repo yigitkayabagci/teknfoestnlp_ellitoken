@@ -6,6 +6,7 @@ from copy import copy
 from typing import List, Dict, Sequence, Optional
 
 from llm.llm_models.gemini_client import GeminiClient
+from llm.llm_models.gemini_client import LlmClient
 
 from langchain_core.messages import (
     BaseMessage,
@@ -35,7 +36,7 @@ class LlmAdapter:
 
     def __init__(
         self,
-        llm: GeminiClient,
+        llm: LlmClient,
         *,
         verbose: bool = False,
         tool_result_label: str = "TOOL_RESULT",
