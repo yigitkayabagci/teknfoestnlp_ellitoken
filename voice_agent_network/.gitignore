@@ -1,9 +1,0 @@
-.env
-__pycache__/
-logs/
-*.pyc
-venv/
-poetry.lock
-.idea
-.vscode
-.DS_Store
