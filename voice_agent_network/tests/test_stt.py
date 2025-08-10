@@ -2,8 +2,7 @@
 # test_stt.py
 # \teknfoestnlp_ellitoken\voice_agent_network> bu yoldayken python -m tests.test_stt bu commandle çalıştırmayı deneyebilirsiniz
 import sys
-from src.stt import FileSTT
-from src.stt import MicSTT
+from src.stt import FileSTT, MicSTT
 
 def test_file_stt(file_path):
     stt = FileSTT()
