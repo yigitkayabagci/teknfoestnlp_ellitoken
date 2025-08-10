@@ -2,7 +2,7 @@ from langchain_core.messages import AIMessage
 from agentic_network.core import AgentState, GraphRoutes
 
 
-def decide_tools(agent_state: AgentState) -> GraphRoutes:
+def decide_tools(agent_state: AgentState) -> GraphRoutes.value:
     """Checks the last AI message for tool calls and decides the next step."""
     print("--- Deciding next step ---")
 

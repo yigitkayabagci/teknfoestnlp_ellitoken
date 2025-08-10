@@ -18,7 +18,7 @@ def decide_cluster_agent(agent_state: AgentState) -> GraphRoutes:
     cluster_agent = message_content.split("CALL CLUSTER AGENT: ")[1].upper()
 
     if cluster_agent == GraphRoutes.DIAGNOSIS_AGENT:
-        print("Decision: Call Diognosis Agent.")
+        print("Decision: Call Diagnosis Agent.")
         return GraphRoutes.DIAGNOSIS_AGENT
 
     elif cluster_agent == GraphRoutes.APPOINTMENT_AGENT:

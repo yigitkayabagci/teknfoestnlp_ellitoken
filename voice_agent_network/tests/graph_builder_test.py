@@ -16,7 +16,7 @@ def main():
     # declare tools
     @tool
     def get_weather_info(location: str) -> str:
-        """Fetches dummy weather information for a given location."""
+        """Fetches weather information for a given location."""
         print(f"--- Calling get_weather_info tool for {location} ---")
         weather_conditions = [
             {"condition": "Rainy", "temp_c": 15},
@@ -31,7 +31,7 @@ def main():
     weather_info_tool = Tool(
         name="get_weather_info",
         func=get_weather_info,
-        description="Fetches dummy weather information for a given location."
+        description="Fetches weather information for a given location."
     )
 
     # declare llm

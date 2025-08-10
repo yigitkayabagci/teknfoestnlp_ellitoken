@@ -20,7 +20,7 @@ class AgentGraph:
 
     # Concrete agent instances (all share a common base: ClusterAgent)
     topic_manager_agent: ClusterAgent = None
-    diognosis_agent: ClusterAgent = None
+    diagnosis_agent: ClusterAgent = None
     appointment_agent: ClusterAgent = None
     small_talk_agent: ClusterAgent = None
     out_of_topic_agent: ClusterAgent = None
@@ -43,7 +43,7 @@ class AgentGraph:
         (i.e., accept and return the `AgentState` mapping or compatible object).
         """
         self.topic_manager_agent = TopicManagerAgent()
-        self.diognosis_agent = DiognosisAgent()
+        self.diagnosis_agent = DiognosisAgent()
         self.appointment_agent = AppointmentAgent()
         self.small_talk_agent = SmallTalkAgent()
         self.out_of_topic_agent = OutOfTopicAgent()
@@ -71,7 +71,7 @@ class AgentGraph:
         # ---------------------- Nodes -------------------------------------------------
         # Register each agent under a stable route key from GraphRoutes.
         graph_builder.add_node(GraphRoutes.TOPIC_MANAGER_AGENT, self.topic_manager_agent)
-        graph_builder.add_node(GraphRoutes.DIAGNOSIS_AGENT, self.diognosis_agent)
+        graph_builder.add_node(GraphRoutes.DIAGNOSIS_AGENT, self.diagnosis_agent)
         graph_builder.add_node(GraphRoutes.APPOINTMENT_AGENT, self.appointment_agent)
         graph_builder.add_node(GraphRoutes.SMALL_TALK, self.small_talk_agent)
         graph_builder.add_node(GraphRoutes.OUT_OF_TOPIC, self.out_of_topic_agent)
