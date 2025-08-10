@@ -6,7 +6,7 @@ from copy import copy
 from typing import List, Dict, Sequence, Optional
 
 from llm.llm_models.gemini_client import GeminiClient
-from llm.llm_models.gemini_client import LlmClient
+from llm.llm_client import LlmClient
 
 from langchain_core.messages import (
     BaseMessage,
@@ -20,15 +20,15 @@ from langchain_core.tools import BaseTool
 
 class LlmAdapter:
     """
-    A lightweight LangChain-style chat model that wraps your GeminiClient.
+    A lightweight LangChain-style chat model that wraps your LlmClient.
 
     Usage:
-        chat = ChatGeminiAdapter(llm=GeminiClient(), verbose=True)
+        chat = LlmAdapter(llm=LlmClient(), verbose=True)
         chat_with_tools = chat.bind_tools([tool1, tool2])
         ai_msg = chat_with_tools.invoke(messages)
 
     Notes:
-    - Produces AIMessage with structured tool_calls when your GeminiClient
+    - Produces AIMessage with structured tool_calls when your LlmClient
       emits 'TOOL_CALL: {"name": "...", "args": {...}}'.
     - Maps ToolMessage -> 'user' message with a TOOL_RESULT prefix so your
       client/model can read tool outputs.
