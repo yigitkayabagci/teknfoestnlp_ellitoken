@@ -1,5 +1,5 @@
 from .cluster_agent import ClusterAgent
 
 
-class TopicManagerAgent(ClusterAgent):
+class SmallTalkAgent(ClusterAgent):
     pass
