@@ -7,8 +7,8 @@ from langgraph.graph.message import add_messages
 from langgraph.graph import START, END, StateGraph
 from langgraph.prebuilt import ToolNode
 
-from llm.llm_adapter import LlmAdapter
-from llm.llm_models.gemini_client import GeminiClient
+from llm import LlmAdapter
+from llm.llm_models import GeminiClient
 import json, uuid
 
 
