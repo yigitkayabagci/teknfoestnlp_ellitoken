@@ -1,4 +1,3 @@
-import random
 from typing import TypedDict, Annotated
 from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, ToolMessage, SystemMessage
 from langchain_core.tools import tool
@@ -6,10 +5,30 @@ from langchain.tools import Tool
 from langgraph.graph.message import add_messages
 from langgraph.graph import START, END, StateGraph
 from langgraph.prebuilt import ToolNode
+import json, uuid, random
 
 from llm import LlmAdapter
 from llm.llm_models import GeminiClient
-import json, uuid
+from agentic_network import Context, ClusterAgent, TopicManagerAgent, DiognosisAgent, AppointmentAgent
+
+
+class AgentGraph:
+    context: Context = None
+
+    topic_manager_agent: TopicManagerAgent = None
+    diognosis_agent: DiognosisAgent = None
+    appointment_agent: AppointmentAgent = None
+
+    def __init__(self):
+        self.initialize_context()
+
+    def initialize_context(self) -> None:
+        self.context = Context()
+
+    def initialize_agents(self) -> None:
+        self.topic_manager_agent = TopicManagerAgent()
+        self.diognosis_agent = DiognosisAgent()
+        self.appointment_agent = AppointmentAgent()
 
 
 def main():

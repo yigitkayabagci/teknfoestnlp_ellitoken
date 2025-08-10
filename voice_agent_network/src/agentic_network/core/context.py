@@ -1,1 +1,2 @@
-# Shared context object
+class Context:
+    pass
