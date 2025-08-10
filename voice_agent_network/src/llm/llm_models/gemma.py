@@ -1,4 +1,4 @@
-# from voice_agent_network.src.llm.devices import Device
+# from llm import Device
 # from transformers import (BitsAndBytesConfig, AutoModelForCausalLM, AutoTokenizer)
 # from llama_cpp import Llama
 # import accelerate

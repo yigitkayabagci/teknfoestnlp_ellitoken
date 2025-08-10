@@ -1,5 +1,5 @@
-from voice_agent_network.src.llm.llm_models.gemma import Gemma
-from voice_agent_network.src.llm.devices import Device
+from llm.llm_models import Gemma
+from llm import Device
 medgemma = Gemma(False, model_variant= Gemma.Variant.GEMMA_3_1B_IT, device_map= Device.AUTO)
 
 #EXAMPLE
