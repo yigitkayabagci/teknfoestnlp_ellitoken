@@ -102,6 +102,7 @@ def main():
                 print(f"--- Transformed message to: {new_message} ---")
 
                 state["messages"][-1] = new_message
+
             except (json.JSONDecodeError, KeyError) as e:
                 print(f"--- Failed to parse JSON from TOOL_CALL: {e} ---")
                 state["messages"].append(
