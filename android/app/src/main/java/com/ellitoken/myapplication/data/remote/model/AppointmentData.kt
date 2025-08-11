@@ -6,6 +6,7 @@ data class AppointmentData(
     val doctorName: String,
     val patientName: String,
     val hospitalName: String
+
 )
 
 val upcomingAppointments = listOf(
@@ -25,9 +26,9 @@ val upcomingAppointments = listOf(
     ),
     AppointmentData(
         id = "3",
-        dateTime = "15 Ağustos 2025 - 09:00",
-        doctorName = "Dr. Ayşe Demir",
+        dateTime = "5 Ağustos 2025 - 09:40",
+        doctorName = "Dr. Zeynep Demir",
         patientName = "Elif Kaya",
-        hospitalName = "Medicana"
+        hospitalName = "Bilkent Şehir Hastanesi"
     ),
 )
