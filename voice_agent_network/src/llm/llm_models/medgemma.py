@@ -19,9 +19,9 @@ class MedGemma:
 
         NOTE: These are assumed to be local folder names in the 'medgemma_models' directory.
         """
-        MEDGEMMA_4B_IT = "medgemma_models/medgemma-4b-it"
-        MEDGEMMA_27B_IT = "medgemma_models/medgemma-27b-it"
-        MEDGEMMA_27B_TEXT_IT = "medgemma_models/medgemma-27b-text-it"
+        MEDGEMMA_4B_IT = "model_files/medgemma_models/medgemma-4b-it"
+        MEDGEMMA_27B_IT = "model_files/medgemma_models/medgemma-27b-it"
+        MEDGEMMA_27B_TEXT_IT = "model_files/medgemma_models/medgemma-27b-text-it"
 
     def __init__(self,
                  use_quantized: bool,
@@ -32,8 +32,8 @@ class MedGemma:
         # We store the variant and device as instance variables
         self.model_variant = model_variant
         self.device_map = device_map
-        self.folder_path = os.path.join(os.getcwd(), "../src/llm/llm_models/model_files/")
-        self.folder_path += self.model_variant.value
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.folder_path = os.path.join(script_dir, model_variant.value)
         self.folder_path = os.path.normpath(self.folder_path)
 
         self.model = self._load_model(use_quantized)

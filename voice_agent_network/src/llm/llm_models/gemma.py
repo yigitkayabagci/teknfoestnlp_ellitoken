@@ -1,4 +1,4 @@
-from llm import Device
+from llm.core.devices import Device
 from transformers import (BitsAndBytesConfig, AutoModelForCausalLM, AutoTokenizer)
 from llama_cpp import Llama
 import accelerate
@@ -23,6 +23,10 @@ class Gemma:
         GEMMA_3_1B_IT_QAT_Q4_0_GGUF = ("gemma_models/gemma-3-1b-it-qat-q4_0-gguf", True)
         GEMMA_3_1B_IT_QAT_Q4_0_UNQUANTIZED = ("gemma_models/gemma-3-1b-it-qat-q4_0-unquantized", False)
         GEMMA_3_1B_IT = ("gemma_models/gemma-3-1b-it", False)
+        GEMMA_3_4B_IT = ("gemma_models/gemma-3-4b-it", False)
+        GEMMA_3_12B_IT = ("gemma_models/gemma-3-12b-it", False)
+        GEMMA_3_12B_IT_QAT_Q4_0_GGUF = ("gemma_models/gemma-3-12b-it-qat-q4_0-gguf", True)
+        GEMMA_3_12B_IT_QAT_Q4_0_UNQUANTIZED = ("gemma_models/gemma-3-12b-it-qat-q4_0-unquantized", False)
 
         @property
         def _is_gguf(self):
@@ -45,8 +49,8 @@ class Gemma:
         self.model_variant = model_variant
         self.device_map = device_map
         self.use_quantized = use_quantized
-        self.folder_path = os.path.join(os.getcwd(), "../src/llm/llm_models/model_files/")
-        self.folder_path += self.model_variant._folder_name
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        self.folder_path = os.path.join(script_dir, self.model_variant._folder_name)
         self.folder_path = os.path.normpath(self.folder_path)
 
 
