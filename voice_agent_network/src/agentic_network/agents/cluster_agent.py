@@ -1,9 +1,12 @@
+from __future__ import annotations
+from abc import ABC, abstractmethod
 from agentic_network.core import AgentState
 
 
 class ClusterAgent:
     def __call__(self, agent_state: AgentState) -> dict:
-        return self.get_node(agent_state)
+        return self._get_node(agent_state)
 
-    def get_node(self, agent_state: AgentState) -> dict:
-        return {}
+    @abstractmethod
+    def _get_node(self, agent_state: AgentState) -> dict:
+        raise NotImplementedError
