@@ -1,4 +1,4 @@
-from llm import Device
+from llm.core import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
 import torch

@@ -1,8 +1,8 @@
 from langgraph.graph.state import CompiledStateGraph
 from langgraph.graph import StateGraph
 
-from agentic_network.agents import ClusterAgent, TopicManagerAgent, DiognosisAgent, AppointmentAgent, SmallTalkAgent, \
-    OutOfTopicAgent
+from agentic_network.agents import ClusterAgent, TopicManagerCluster, DiognosisAgent
+from agentic_network.agents import AppointmentAgent, SmallTalkAgent, OutOfTopicAgent
 from agentic_network.core import AgentState, GraphRoutes
 from agentic_network.routing import decide_cluster_agent, decide_topic_manager
 
@@ -42,7 +42,7 @@ class AgentGraph:
         Each agent should implement the callable interface expected by LangGraph
         (i.e., accept and return the `AgentState` mapping or compatible object).
         """
-        self.topic_manager_agent = TopicManagerAgent()
+        self.topic_manager_agent = TopicManagerCluster()
         self.diagnosis_agent = DiognosisAgent()
         self.appointment_agent = AppointmentAgent()
         self.small_talk_agent = SmallTalkAgent()

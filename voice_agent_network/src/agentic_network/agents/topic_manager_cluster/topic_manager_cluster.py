@@ -1,8 +1,8 @@
-from .cluster_agent import ClusterAgent
+from agentic_network.agents.cluster_agent import ClusterAgent
 from agentic_network.core import AgentState
 
 
-class TopicManagerAgent(ClusterAgent):
+class TopicManagerCluster(ClusterAgent):
     def __init__(self):
         pass
 

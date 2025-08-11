@@ -1,7 +1,7 @@
 from __future__ import annotations
 from typing import List, Dict, Optional, Tuple
 from dotenv import load_dotenv
-from llm import LlmClient
+from llm.core import LlmClient
 import os
 import requests
 import sys

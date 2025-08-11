@@ -1,5 +1,5 @@
 from .cluster_agent import ClusterAgent
-from .topic_manager_agent import TopicManagerAgent
+from .topic_manager_cluster.topic_manager_cluster import TopicManagerCluster
 from .diagnosis_agent import DiognosisAgent
 from .appointment_agent import AppointmentAgent
 from .small_talk_agent import SmallTalkAgent
