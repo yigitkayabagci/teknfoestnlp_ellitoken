@@ -73,8 +73,8 @@ class AgentGraph:
         graph_builder.add_node(GraphRoutes.TOPIC_MANAGER_AGENT, self.topic_manager_agent)
         graph_builder.add_node(GraphRoutes.DIAGNOSIS_AGENT, self.diagnosis_agent)
         graph_builder.add_node(GraphRoutes.APPOINTMENT_AGENT, self.appointment_agent)
-        graph_builder.add_node(GraphRoutes.SMALL_TALK, self.small_talk_agent)
-        graph_builder.add_node(GraphRoutes.OUT_OF_TOPIC, self.out_of_topic_agent)
+        graph_builder.add_node(GraphRoutes.SMALL_TALK_AGENT, self.small_talk_agent)
+        graph_builder.add_node(GraphRoutes.OUT_OF_TOPIC_AGENT, self.out_of_topic_agent)
 
         # ---------------------- Linear Edge(s) ----------------------------------------
         # Entry point: start the graph at Topic Manager.

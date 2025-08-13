@@ -12,5 +12,5 @@ class GraphRoutes(StrEnum):
     DIAGNOSIS_AGENT = auto()
     APPOINTMENT_AGENT = auto()
 
-    SMALL_TALK = auto()
-    OUT_OF_TOPIC = auto()
+    SMALL_TALK_AGENT = auto()
+    OUT_OF_TOPIC_AGENT = auto()

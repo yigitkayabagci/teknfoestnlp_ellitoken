@@ -123,7 +123,7 @@ class LlmAdapter:
 
         return converted
 
-    def _client_result_to_ai_message(self, result: Dict) -> AIMessage:
+    def _client_result_to_ai_message(self, result: Dict) -> AIçMessage:
         """
         Map your client's result -> AIMessage (with structured tool_calls if present).
         """
