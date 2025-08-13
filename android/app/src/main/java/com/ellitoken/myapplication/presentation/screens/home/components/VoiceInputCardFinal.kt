@@ -65,26 +65,7 @@ fun VoiceInputCardFinal(
 
                 is VoiceState.Listening -> {
                         Box(contentAlignment = Alignment.Center) {
-                            MeetStyleListeningAnimation(
-                                modifier = Modifier.size(120.dp)
-                            ) {
-                                Box(modifier = Modifier.size(60.dp)) // Boş content, sadece animasyon için
-                            }
-
-                            Box(
-                                Modifier
-                                    .size(120.dp)
-                                    .clip(CircleShape)
-                                    .clickable(onClick = onStopListening)
-                            ) {
-                                Image(
-                                    painter = painterResource(id = R.drawable.homescreen_ic_voice),
-                                    contentDescription = "Dinlemeyi Durdur",
-                                    modifier = Modifier
-                                        .fillMaxSize()
-                                        .offset(y = 8.dp) // Aynı offset
-                                )
-                            }
+                            ListeningAnimation()
                         }
 
                 }

@@ -26,6 +26,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.TabRowDefaults.tabIndicatorOffset
 import androidx.compose.runtime.Composable
+import com.ellitoken.myapplication.ui.theme.appBackground
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -41,6 +42,7 @@ fun CalendarScreen(navController: NavController, viewModel: CalendarScreenViewMo
                     Text(
                         text = "Randevularım",
                         fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
                         color = Color.Black
                     )
                 },
@@ -64,7 +66,7 @@ fun CalendarScreen(navController: NavController, viewModel: CalendarScreenViewMo
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(Color.White),
+                .background(appBackground),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Spacer(modifier = Modifier.height(16.dp))

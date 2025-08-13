@@ -47,7 +47,6 @@ fun AppNavigation(
     val showBottomBar = when (currentRoute) {
         Screen.HomeScreen.route -> true
         Screen.CalendarScreen.route -> true
-        Screen.ChatSupportScreen.route -> true
         Screen.ProfileScreen.route -> true
         else -> false
     }

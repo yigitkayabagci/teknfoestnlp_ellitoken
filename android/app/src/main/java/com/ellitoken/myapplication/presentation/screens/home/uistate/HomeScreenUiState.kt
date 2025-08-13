@@ -10,7 +10,7 @@ data class HomeScreenUiState(
 
 sealed class VoiceState {
     object Idle : VoiceState()
-    data class Listening(val amplitude: Float = 0f) : VoiceState()
+    data class Listening(var amplitude: Float = 0f) : VoiceState()
     object Processing : VoiceState()
     object Speaking : VoiceState()
 }
