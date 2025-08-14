@@ -3,8 +3,8 @@ from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from agentic_network.agents.topic_manager_cluster.agents import TopicAgent
 from agentic_network.core import AgentState
 from agentic_network.core.topic_manager_util import format_dialog_with_topics, format_dialog
-from llm.llm_models import GeminiClient
-from llm.core import LlmAdapter
+from llm.core.llm_singletons import llmSingleton
+from llm.core.gemma_based_model_adapter import GemmaBasedModelAdapter
 
 
 class PreTopicsCheckerAgent(TopicAgent):
@@ -22,8 +22,8 @@ class PreTopicsCheckerAgent(TopicAgent):
                 "all_dialog": AIMessage("FINAL ANSWER: NEW TOPIC")
             }
 
-        llm = GeminiClient()
-        chat = LlmAdapter(llm, verbose=True)
+        llm = llmSingleton.gemma_3_1b_it
+        chat = GemmaBasedModelAdapter(llm)
         dialog = format_dialog_with_topics(agent_state["all_dialog"])
         thoughts = format_dialog(agent_state["thoughts"])
         current_message = agent_state["current_message"]

@@ -3,8 +3,8 @@ from langchain_core.messages import SystemMessage, HumanMessage
 from agentic_network.agents.topic_manager_cluster.agents import TopicAgent
 from agentic_network.core.topic_manager_util import format_dialog
 from agentic_network.core import AgentState, GraphRoutes
-from llm.llm_models import GeminiClient
-from llm.core import LlmAdapter
+from llm.core.llm_singletons import llmSingleton
+from llm.core.gemma_based_model_adapter import GemmaBasedModelAdapter
 
 
 class NewTopicAgent(TopicAgent):
@@ -15,8 +15,8 @@ class NewTopicAgent(TopicAgent):
     def _get_node(self, agent_state: AgentState) -> dict:
         print("-NEW TOPIC AGENT-")
 
-        llm = GeminiClient()
-        chat = LlmAdapter(llm, verbose=True)
+        llm = llmSingleton.gemma_3_1b_it
+        chat = GemmaBasedModelAdapter(llm)
         current_message = agent_state["current_message"]
         thoughts = format_dialog(agent_state["thoughts"])
         system_message = self._build_system_message(current_message, thoughts)

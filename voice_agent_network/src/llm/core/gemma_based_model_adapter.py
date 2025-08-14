@@ -8,7 +8,7 @@ from llm.llm_models import GemmaBasedModel
 # from llm.llm_models.gemma import Gemma
 
 # The custom wrapper class, now with full message type support
-class GemmaAdapter:
+class GemmaBasedModelAdapter:
     """
     A LangChain-compatible wrapper for the custom Gemma client.
     Handles System, Human, AI, and Tool message types.

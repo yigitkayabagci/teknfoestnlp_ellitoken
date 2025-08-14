@@ -3,8 +3,8 @@ from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 from agentic_network.agents.topic_manager_cluster.agents import TopicAgent
 from agentic_network.core import AgentState
 from agentic_network.core.topic_manager_util import get_messages_for_current_topic, format_dialog
-from llm.llm_models import GeminiClient
-from llm.core import LlmAdapter
+from llm.core.gemma_based_model_adapter import GemmaBasedModelAdapter
+from llm.core.llm_singletons import llmSingleton
 
 
 class TopicChangeCheckerAgent(TopicAgent):
@@ -23,8 +23,8 @@ class TopicChangeCheckerAgent(TopicAgent):
                 "thoughts": AIMessage("FINAL ANSWER: DIFFERENT TOPIC")
             }
 
-        llm = GeminiClient()
-        chat = LlmAdapter(llm, verbose=True)
+        llm = llmSingleton.gemma_3_1b_it
+        chat = GemmaBasedModelAdapter(llm)
         dialog = format_dialog(get_messages_for_current_topic(agent_state))
         thoughts = format_dialog(agent_state["thoughts"])
         current_message = agent_state["current_message"]

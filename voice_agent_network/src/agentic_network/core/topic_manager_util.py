@@ -115,25 +115,14 @@ def add_topic_id_to_message(msg: AnyMessage, topic_id: str | None) -> AnyMessage
         return msg.__class__(content=msg.content, metadata=meta)
 
 
-def make_msg(role: Literal["user", "assistant", "system"], content: str, topic_id: str | None) -> AnyMessage:
-    base: AnyMessage = (
-        HumanMessage(content=content)
-        if role == "user"
-        else AIMessage(content=content)
-        if role == "assistant"
-        else SystemMessage(content=content)
-    )
-    return add_topic_id_to_message(base, topic_id)
-
-
-def add_message_to_dialogue(state: AgentState, role: Literal["user", "assistant", "system"], content: str) -> AgentState:
+def add_message_to_dialogue(state: AgentState, message: AnyMessage) -> dict:
     stack = state.get("topic_stack") or []
     topic_id = stack[-1]["id"] if stack else None
 
     if topic_id is None:
         raise RuntimeError("Topic Stack is somehow empty.")
 
-    msg = make_msg(role, content, topic_id)
+    msg = add_topic_id_to_message(message, topic_id)
     return {"all_dialog": [msg]}
 
 
@@ -182,6 +171,14 @@ def format_dialog_with_topics(messages: Iterable[AnyMessage]) -> str:
         topic_tag = f"[topic:{topic_id}] " if topic_id else ""
         lines.append(f"{topic_tag}{_role_of(m)}: {_content_str(m)}")
     return "\n".join(lines)
+
+
+def format_dialog_to_json(messages: Iterable[AnyMessage]) -> list:
+    return [format_message_to_json(message) for message in messages]
+
+
+def format_message_to_json(message: AnyMessage) -> dict:
+    return {"role": _role_of(message), "content": [{"type": "text", "text": message.content}]}
 
 
 def format_dialog(messages: Iterable[AnyMessage]) -> str:
