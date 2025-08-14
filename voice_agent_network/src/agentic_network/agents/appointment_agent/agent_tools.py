@@ -29,7 +29,7 @@ class ToolManager:
                     "type": "object",
                     "properties": {
                         "identity_number": {
-                            "type": "str",
+                            "type": "string",
                             "description": "Kullanıcının girdiği kimlik numarası."
                         }
                     },
