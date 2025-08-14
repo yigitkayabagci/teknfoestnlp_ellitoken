@@ -1,3 +1,4 @@
+from llm.llm_models import GemmaBasedModel
 from src.llm.core.devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
@@ -7,7 +8,7 @@ from enum import Enum
 from typing import List, Dict
 
 
-class MedGemma:
+class MedGemma(GemmaBasedModel):
     """
     A class to load MedGemma models and their corresponding processors/tokenizers.
     The loaded model and processor are available as instance variables.
@@ -19,9 +20,9 @@ class MedGemma:
 
         NOTE: These are assumed to be local folder names in the 'medgemma_models' directory.
         """
-        MEDGEMMA_4B_IT = "model_files/medgemma_models/medgemma-4b-it"
-        MEDGEMMA_27B_IT = "model_files/medgemma_models/medgemma-27b-it"
-        MEDGEMMA_27B_TEXT_IT = "model_files/medgemma_models/medgemma-27b-text-it"
+        MEDGEMMA_4B_IT = "../model_files/medgemma_models/medgemma-4b-it"
+        MEDGEMMA_27B_IT = "../model_files/medgemma_models/medgemma-27b-it"
+        MEDGEMMA_27B_TEXT_IT = "../model_files/medgemma_models/medgemma-27b-text-it"
 
     def __init__(self,
                  use_quantized: bool,

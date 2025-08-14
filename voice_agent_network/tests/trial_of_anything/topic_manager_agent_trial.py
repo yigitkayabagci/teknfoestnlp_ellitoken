@@ -1,4 +1,4 @@
-from llm.llm_models.gemma import Gemma
+from llm.llm_models.gemma_based_models.gemma import Gemma
 from llm.core.devices import Device
 
 gemma = Gemma(False, device_map=Device.AUTO, model_variant=Gemma.Variant.GEMMA_3_4B_IT)

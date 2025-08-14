@@ -7,7 +7,10 @@ import os
 from enum import Enum
 from typing import List, Dict
 
-class Gemma:
+from llm.llm_models import GemmaBasedModel
+
+
+class Gemma(GemmaBasedModel):
     """
     A class to load Gemma models and their corresponding tokenizers.
     The loaded model and tokenizer are available as instance variables.
@@ -20,13 +23,13 @@ class Gemma:
         Each tuple contains the folder name and a flag indicating if it's a GGUF model.
         The folder names are assumed to be local paths inside the 'gemma_models' directory.
         """
-        GEMMA_3_1B_IT_QAT_Q4_0_GGUF = ("gemma_models/gemma-3-1b-it-qat-q4_0-gguf", True)
-        GEMMA_3_1B_IT_QAT_Q4_0_UNQUANTIZED = ("gemma_models/gemma-3-1b-it-qat-q4_0-unquantized", False)
-        GEMMA_3_1B_IT = ("gemma_models/gemma-3-1b-it", False)
-        GEMMA_3_4B_IT = ("gemma_models/gemma-3-4b-it", False)
-        GEMMA_3_12B_IT = ("gemma_models/gemma-3-12b-it", False)
-        GEMMA_3_12B_IT_QAT_Q4_0_GGUF = ("gemma_models/gemma-3-12b-it-qat-q4_0-gguf", True)
-        GEMMA_3_12B_IT_QAT_Q4_0_UNQUANTIZED = ("gemma_models/gemma-3-12b-it-qat-q4_0-unquantized", False)
+        GEMMA_3_1B_IT_QAT_Q4_0_GGUF = ("../model_files/gemma_models/gemma-3-1b-it-qat-q4_0-gguf", True)
+        GEMMA_3_1B_IT_QAT_Q4_0_UNQUANTIZED = ("../model_files/gemma_models/gemma-3-1b-it-qat-q4_0-unquantized", False)
+        GEMMA_3_1B_IT = ("../model_files/gemma_models/gemma-3-1b-it", False)
+        GEMMA_3_4B_IT = ("../model_files/gemma_models/gemma-3-4b-it", False)
+        GEMMA_3_12B_IT = ("../model_files/gemma_models/gemma-3-12b-it", False)
+        GEMMA_3_12B_IT_QAT_Q4_0_GGUF = ("../model_files/gemma_models/gemma-3-12b-it-qat-q4_0-gguf", True)
+        GEMMA_3_12B_IT_QAT_Q4_0_UNQUANTIZED = ("../model_files/gemma_models/gemma-3-12b-it-qat-q4_0-unquantized", False)
 
         @property
         def _is_gguf(self):
@@ -52,7 +55,6 @@ class Gemma:
         script_dir = os.path.dirname(os.path.abspath(__file__))
         self.folder_path = os.path.join(script_dir, self.model_variant._folder_name)
         self.folder_path = os.path.normpath(self.folder_path)
-
 
         self.model = self._load_model(use_quantized)
         if not self.model_variant._is_gguf:

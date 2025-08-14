@@ -1,8 +1,7 @@
-from llm.llm_models import Gemma
-from llm import Device
+from llm.llm_models.gemma_based_models import Gemma
+from llm.core import Device
 medgemma = Gemma(False, model_variant= Gemma.Variant.GEMMA_3_1B_IT, device_map= Device.AUTO)
 
-#EXAMPLE
 def print_example():
     role_instruction = "You are a helpful assistant."
     prompt = "Ankara hangi ülkede?"
@@ -51,4 +50,4 @@ while True:
     ]
 
     # Generate and print the response
-    print(f"MedGemma: {medgemma.give_prompt(messages)}")
+    print(f"Gemma: {medgemma.give_prompt(messages)}")

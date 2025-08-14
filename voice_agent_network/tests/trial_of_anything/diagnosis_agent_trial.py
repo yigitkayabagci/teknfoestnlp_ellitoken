@@ -1,10 +1,9 @@
-from llm.llm_models.medgemma import MedGemma
+from llm.llm_models.gemma_based_models.medgemma import MedGemma
 from llm.core.devices import Device
 
 import json
 import re
 from enum import Enum
-import asyncio
 
 
 class DiagnosisAgentTrial():

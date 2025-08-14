@@ -81,3 +81,18 @@ class TopicManagerCluster(ClusterAgent):
         # ---------------------- Compile -----------------------------------------------
         # Finalize the graph into a runnable pipeline.
         self.graph = graph_builder.compile()
+
+
+from pathlib import Path
+
+
+topic_manager = TopicManagerCluster()
+
+# get a runnable app whether .graph is compiled or not
+graph_or_app = topic_manager.graph
+app = graph_or_app if hasattr(graph_or_app, "invoke") else graph_or_app.compile()
+
+# render Mermaid -> PNG (returns bytes)
+png_bytes = app.get_graph().draw_mermaid_png()
+Path("topic_manager_graph.png").write_bytes(png_bytes)
+print("Saved topic_manager_graph.png")

@@ -1,4 +1,4 @@
-from llm.llm_models.medgemma import MedGemma
+from llm.llm_models.gemma_based_models.medgemma import MedGemma
 from llm.core.devices import Device
 
 medgemma = MedGemma(False, device_map=Device.AUTO)
