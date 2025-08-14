@@ -3,6 +3,8 @@ from fastapi.responses import StreamingResponse
 import io
 import numpy as np
 from scipy.io.wavfile import write
+import os
+from pathlib import Path
 
 class STTServer:
     def __init__(self):
@@ -28,15 +30,20 @@ class STTServer:
             # 4. LLM ile metni işle (bu kısım sizin projenize özel)
             islenmis_metin = f"Söylediğin: '{transkript}'. Bu harika bir konuşma."
 
-            # 5. CoquiTTS ile metni sese çevir
-            tts_output_bytes = io.BytesIO()
-            tts_model.tts_to_file(
-                text=islenmis_metin,
-                file_path=tts_output_bytes
-            )
-            tts_output_bytes.seek(0)
 
-            # 6. Oluşturulan ses dosyasını geri gönder
-            return StreamingResponse(tts_output_bytes, media_type="audio/wav")
+            # 5. CoquiTTS ile metni sese çevir
+            temp_wav_path = Path("temp_tts_output.wav")
+
+            try:
+                self.tts_model.synthesize(text=islenmis_metin, filename=str(temp_wav_path))
+
+                with open(temp_wav_path, "rb") as f:
+                    tts_output_bytes = io.BytesIO(f.read())
+                tts_output_bytes.seek(0)
+
+                return StreamingResponse(tts_output_bytes, media_type="audio/wav")
+            finally:
+                if temp_wav_path.exists():
+                    os.remove(temp_wav_path)
 
     
