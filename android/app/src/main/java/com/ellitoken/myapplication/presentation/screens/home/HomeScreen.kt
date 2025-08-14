@@ -79,7 +79,7 @@ fun HomeScreen(navController: NavController, viewModel: HomeScreenViewModel = ge
                     viewModel.startListening()
                 },
                 onStopListening = {
-
+                    viewModel.stopListeningAndProcess()
                 }
             )
 

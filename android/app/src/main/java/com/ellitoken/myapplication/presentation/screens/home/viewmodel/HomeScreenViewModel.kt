@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ellitoken.myapplication.presentation.screens.home.uistate.HomeScreenUiState
 import com.ellitoken.myapplication.presentation.screens.home.uistate.VoiceState
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -34,15 +35,27 @@ class HomeScreenViewModel : ViewModel() {
         }
     }
 
+
     fun stopListeningAndProcess() {
+        if (_uiState.value.voiceState is VoiceState.Processing || _uiState.value.voiceState is VoiceState.Idle) return
+
         _uiState.update { it.copy(voiceState = VoiceState.Processing) }
 
         viewModelScope.launch {
             // api call.
+            // Backend simülasyonu
+            println("SIMULATION: Sahte API isteği başladı...")
+            delay(2000) // 2 saniyelik sahte işlem süresi
+            println("SIMULATION: Sahte API isteği bitti.")
+
+            // "Speaking" durumuna geç
             _uiState.update { it.copy(voiceState = VoiceState.Speaking) }
+
+            // AI'ın konuşmasının bittiğini simüle et
+            delay(3000) // 3 saniyelik sahte konuşma süresi
+            aiFinishedSpeaking()
         }
     }
-
     fun aiFinishedSpeaking() {
         // call when finish.
         _uiState.update { it.copy(voiceState = VoiceState.Idle) }
@@ -60,6 +73,7 @@ class HomeScreenViewModel : ViewModel() {
             }
         }
     }
+
 
     fun setMicClicked(clicked: Boolean) {
         _uiState.update { it.copy(isMicClicked = clicked) }

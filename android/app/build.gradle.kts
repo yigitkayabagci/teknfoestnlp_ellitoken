@@ -103,4 +103,23 @@ dependencies {
 
     // JSON
     implementation(libs.org.json)
+
+    //
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
+
+    //lottie
+    implementation("com.airbnb.android:lottie-compose:6.6.7")
+
+    // VAD (WebRTC/)
+    // implementation("com.github.gkonovalov.android-vad:webrtc:2.0.3")
+
+    // VAD (Silero/)
+//    implementation("com.github.gkonovalov.android-vad:silero:2.0.10")
+//
+//
+//    // Opus (pure Java)
+//    implementation("io.github.jaredmdobson:concentus:1.0.2")
+//
+//    //couroutines
+//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }

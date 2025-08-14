@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ellitoken.myapplication.ui.theme.appBlue
 import com.ellitoken.myapplication.presentation.screens.calendar.viewmodel.AppointmentWithStatus
+import com.ellitoken.myapplication.ui.theme.appWhite
 
 @Composable
 fun AppointmentListItem(
@@ -137,7 +138,7 @@ fun ActionButton(
 
     if (isPrimary) {
         containerColor = appBlue
-        contentColor = Color.White
+        contentColor = appWhite
         borderColor = Color.Transparent
     } else {
         containerColor = Color(0xFFFFCDD2)
