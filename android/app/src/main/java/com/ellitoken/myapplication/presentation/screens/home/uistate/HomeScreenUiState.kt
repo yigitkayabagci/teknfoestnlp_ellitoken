@@ -5,7 +5,8 @@ data class HomeScreenUiState(
     val userName: String = "",
     val profileImageUrl: String? = null,
     val voiceState: VoiceState = VoiceState.Idle,
-    val isMicClicked: Boolean = false
+    val isMicClicked: Boolean = false,
+    val isSpeaking: Boolean = false
 )
 
 sealed class VoiceState {

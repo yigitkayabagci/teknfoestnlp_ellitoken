@@ -63,4 +63,8 @@ class HomeScreenViewModel(
         super.onCleared()
         // recorder.release() gibi bir şeyin varsa burada çağır
     }
+
+    fun setSpeaking(value: Boolean) {
+        _uiState.update{it.copy(isSpeaking = value)}
+    }
 }

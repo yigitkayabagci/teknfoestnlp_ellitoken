@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -17,16 +18,20 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ellitoken.myapplication.R
 import com.ellitoken.myapplication.presentation.screens.home.components.animations.ListeningAnimation
-import com.ellitoken.myapplication.presentation.screens.home.components.animations.MeetStyleListeningAnimation
+import com.ellitoken.myapplication.presentation.screens.home.components.animations.ListeningLottie
+import com.ellitoken.myapplication.presentation.screens.home.components.animations.SpeakingLottie
 import com.ellitoken.myapplication.presentation.screens.home.uistate.VoiceState
 import com.ellitoken.myapplication.ui.theme.appBlack
 
 @Composable
 fun VoiceInputCardFinal(
+    isSpeaking: Boolean,
+    setSpeaking: (Boolean) -> Unit,
     voiceState: VoiceState,
     onMicClick: () -> Unit,
     onStopListening: () -> Unit
 ) {
+
     ElevatedCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -43,8 +48,10 @@ fun VoiceInputCardFinal(
 
                 is VoiceState.Idle -> {
 
-                    Column (horizontalAlignment = Alignment.CenterHorizontally) {
-                        Box(Modifier.size(120.dp).clip(CircleShape).clickable(onClick = onMicClick)) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        Box(
+                            Modifier.size(120.dp).clip(CircleShape).clickable(onClick = onMicClick)
+                        ) {
                             Image(
                                 painter = painterResource(id = R.drawable.homescreen_ic_voice),
                                 contentDescription = "Dinlemeyi Başlat",
@@ -53,7 +60,7 @@ fun VoiceInputCardFinal(
                         }
 
 
-                        Text (
+                        Text(
                             text = "Konuşmayı Başlat",
                             color = appBlack,
                             fontSize = 16.sp,
@@ -65,36 +72,48 @@ fun VoiceInputCardFinal(
 
                 is VoiceState.Listening -> {
                     Box(contentAlignment = Alignment.Center) {
-                        MeetStyleListeningAnimation(
-                            modifier = Modifier.size(120.dp)
-                        ) {
-                            Box(modifier = Modifier.size(60.dp)) // Boş content, sadece animasyon için
-                        }
-
-                        Box(
-                            Modifier
-                                .size(120.dp)
-                                .clip(CircleShape)
-                                .clickable(onClick = onStopListening)
-                        ) {
-                            Image(
-                                painter = painterResource(id = R.drawable.homescreen_ic_voice),
-                                contentDescription = "Dinlemeyi Durdur",
-                                modifier = Modifier
-                                    .fillMaxSize()
-                                    .offset(y = 8.dp) // Aynı offset
-                            )
-                        }
+//                        MeetStyleListeningAnimation(
+//                            modifier = Modifier.size(120.dp)
+//                        ) {
+//                            Box(modifier = Modifier.size(60.dp)) // Boş content, sadece animasyon için
+//                        }
+//
+//                        Box(
+//                            Modifier
+//                                .size(120.dp)
+//                                .clip(CircleShape)
+//                                .clickable(onClick = onStopListening)
+//                        ) {
+//                            Image(
+//                                painter = painterResource(id = R.drawable.homescreen_ic_voice),
+//                                contentDescription = "Dinlemeyi Durdur",
+//                                modifier = Modifier
+//                                    .fillMaxSize()
+//                                    .offset(y = 8.dp) // Aynı offset
+//                            )
+//                        }
+                        ListeningLottie()
                     }
 
                 }
+
                 is VoiceState.Processing -> {
                     ListeningAnimation()
                 }
 
                 is VoiceState.Speaking -> {
-                    Text("AI Konuşuyor...")
+                    LaunchedEffect(voiceState) {
+                        setSpeaking(true)
+                        kotlinx.coroutines.delay(5_000)
+                        setSpeaking(false)
+                    }
+
+                    SpeakingLottie(
+                        modifier = Modifier.size(160.dp),
+                        isPlaying = isSpeaking,
+                    )
                 }
+
             }
         }
     }

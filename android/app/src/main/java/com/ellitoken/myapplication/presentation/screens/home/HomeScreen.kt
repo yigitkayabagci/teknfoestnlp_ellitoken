@@ -95,10 +95,12 @@ fun HomeScreen(
             Spacer(Modifier.height(24.dp))
 
             VoiceInputCardFinal(
+                isSpeaking = uiState.isSpeaking,
+                setSpeaking = viewModel::setSpeaking,
                 voiceState = uiState.voiceState,
                 onMicClick = {
                     viewModel.setMicClicked(true)
-                    requestMicAndStart() // <<< izin+başlat tek yerden
+                    requestMicAndStart()
                 },
                 onStopListening = {
                     viewModel.stopListeningAndProcess()
