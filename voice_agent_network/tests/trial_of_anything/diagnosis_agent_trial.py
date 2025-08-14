@@ -13,11 +13,11 @@ class DiagnosisAgentTrial():
         USER = "user"
 
     def __init__(self):
-        self.medgemma = MedGemma(False, device_map=Device.CPU)
+        self.medgemma = MedGemma(False, device_map=Device.AUTO)
 
         self.AVAILABLE_TOOLS = {
             "kullanıcı_bilgisi_al": self.kullanıcı_bilgisi_al,
-            "randevu_sürecini_başlat": self.randevu_sürecini_başlat
+            "randevu_al": self.randevu_al
         }
         self.tools_metadata = """
             {
@@ -26,19 +26,19 @@ class DiagnosisAgentTrial():
                 "input_schema": {},
                 "output_schema": {"demografi":"dict","kullanılan_ilaç":"array","alerji":"array","kronik_hastalık":"array"}
               },
-              "randevu_sürecini_başlat": {
-                "description": "Bu tool kullanarak kullanıcının istediği kliniğe randevu alacak ajanı çağırırsın Randevu alım süreci başlar. Input parametresi olarak olarak randevu alınacak kliniği vermen gerekiyor.",
+              "randevu_al": {
+                "description": "Bu tool kullanarak kullanıcının istediği kliniğe randevu alırsın. Input parametresi olarak olarak randevu alınacak kliniği vermen gerekiyor.",
                 "input_schema": {"klinik":"string"},
-                "output_schema": {"randevu_agent_çalıştırıldı":"boolean"}
+                "output_schema": {"randevu_agent_çalıştı":"boolean"}
               }
             }
             """
 
         self.role_instruction = """
-            Sen tıbbi bilgi işleyen bir asistansın. Görevin kullanıcının semptomlarına göre olası hastalık tanılarını tespit etmek ve bu sayede doktora gitmesi gereken kliniği bulmak. Konu dağıldığında veya kullanıcı başka bir konu hakkında konuşmak istediğinde kullanıcıyı kibarca görevin olan olası tanıları koyma bağlamına yönlendir. Unutma, tek ve en önemli görevin kullanıcının hastalık semptomlarından olası tanıları çıkarmak ve daha sonrasında kullanıcı onayı ile randevuyu alan agent çağırmak!
+            Sen tıbbi bilgi işleyen bir asistansın. Görevin kullanıcının semptomlarına göre olası hastalık tanılarını tespit etmek ve bu sayede doktora gitmesi gereken kliniği bulmak. Konu dağıldığında veya kullanıcı başka bir konu hakkında konuşmak istediğinde kullanıcıyı kibarca görevin olan olası tanıları koyma bağlamına yönlendir. Unutma, tek ve en önemli görevin kullanıcının hastalık semptomlarından olası tanıları çıkarmak ve daha sonrasında kullanıcı onayı ile randevuyu almak!
 
             Kurallar:
-            1) Türkçe cevap ver. Maksimum 4 cümle kurma hakkın var. Cevapların anlamlı, kısa ve öz olmalı.
+            1) Türkçe cevap ver.
             2) Kullanıcıya doğru yanıt vermek için sana vereceğim tool listesinden kullanıcı_bilgisi_al tool kullanman gerekebilir. Ancak ya kullanıcıya tanı ve randevu ile ilgili cevap vereceksin ya da tool çağrısında bulunacaksın, ikisini aynı anda kesinlikle yapamazsın. Bunlardan başka bir şeyi de kesinlikle yapamazsın, kullanıcıyı ilgili konuya yeniden yönlendirirsin. Eğer tool çağrısı yapman gerekirse sakın başka bir şeyler yazma!
             3) Tool çağrıları kesinlikle şu formatta olmalı. Tool çağrıları için bu formatın dışına çıkman tamamen yasak! (tek satır JSON, başka metin yok):
                <TOOL_CALL>{"name":"tool_name", "input":{**args}}</TOOL_CALL>
@@ -50,10 +50,10 @@ class DiagnosisAgentTrial():
             8) Unutma kullanıcıya tool bahsetmek kesinlikle yasak! Zaten kullanıcının tool erişimi yoktur, kullanamaz! Sistem tool kullanmayı kullanıcıdan gizli bir şekilde arka planda ele alır, tool çağrısı mesajını kullanıcıya iletmez.
             9) Tool çağırarak elde edemediğin, tanı koymak ve randevu almak için ihtiyacın olan ve kullanıcının cevaplayabileceği soruları kullanıcıya sorabilirsin. Ama unutma kullanıcının sorunun cevabını verebilecek olması oldukça önemli. 
             10) Uygulama kullanıcının cevabını alıp modele geri verir.
-            11) Randevu için doğru kliniği bulduğunda kullanıcıya gösterdiği semptomlardan dolayı bulduğun kliniğe gitmesi gerektiğini söyle. Kullanıcı isterse bu kliniğe randevu alım sürecini başlatabileceğinden bahset. Kullanıcıya randevu alımı için onayı olup olmadığını sor. 
-            12) Uygulama kullanıcının randevu almak için olan onay/ret bilgisini modele verir. Eğer kullanıcı randevu alımı sürecini başlatmak ister ve onay verirse randevu_sürecini_başlat tool randevu alınacak klinik input ile çağırırsın.
+            11) Randevu için doğru kliniği bulduğunda kullanıcıya gösterdiği semptomlardan dolayı bulduğun kliniğe gitmesi gerektiğini söyle. Kullanıcı isterse bu kliniğe randevu alabileceğinden bahset. Kullanıcıya randevu alman için onayı olup olmadığını sor. 
+            12) Uygulama kullanıcının randevu almak için olan onay/ret bilgisini modele verir. Eğer kullanıcı randevu almak ister ve onay verirse randevu_al tool randevu alınacak klinik input ile çağırırsın.
             13) Randevu alınacak kliniklerin isimleri sabittir ve bu klinikler hariç başka klinikler yoktur. Sen de klinik önerini bu klinikler arasından seçmelisin. İşte bu sabit isimli kliniklerin listesi: ['Aile hekimliği', 'Algoloji', 'Amatem (Alkol ve Madde Bağımlılığı)', 'Anestezi ve Reanimasyon', 'Beyin ve Sinir Cerrahisi', 'Cerrahi Onkolojisi', 'Çocuk Cerrahisi', 'Çocuk Diş Hekimliği', 'Çocuk Endokrinolojisi', 'Çocuk Enfeksiyon Hastalıkları', 'Çocuk Gastroenterolojisi', 'Çocuk Genetik Hastalıkları', 'Çocuk Göğüs Hastalıkları', 'Çocuk Hematolojisi ve Onkolojisi', 'Çocuk İmmünolojisi ve Alerji Hastalıkları', 'Çocuk Kalp Damar Cerrahisi', 'Çocuk Kalp Damar Cerrahisi', 'Çocuk Kardiyolojisi', 'Çocuk Metabolizma Hastalıkları', 'Çocuk Nefrolojisi', 'Çocuk Nörolojisi', 'Çocuk Romatolojisi', 'Çocuk Sağlığı ve Hastalıkları', 'Çocuk Ürolojisi', 'Çocuk ve Ergen Madde ve Alkol Bağımlılığı', 'Çocuk ve Ergen Ruh Sağlığı ve Hastalıkları', 'Deri ve Zührevi Hastalıkları (Cildiye)', 'Diş Hekimliği (Genel Diş)', 'El Cerrahisi', 'Endodonti', 'Endokrinoloji ve Metabolizma Hastalıkları', 'Enfeksiyon Hastalıkları ve Klinik Mikrobiyoloji', 'Fiziksel Tıp ve Rehabilitasyon', 'Gastroenteroloji Cerrahisi', 'Geleneksel Tamamlayıcı Tıp Ünitesi', 'Gelişimsel Pediatri', 'Genel Cerrahi', 'Geriatri', 'Göğüs Cerrahisi', 'Göğüs Hastalıkları', 'Göz Hastalıkları', 'Hava ve Uzay Hekimliği', 'Hematoloji', 'İç Hastalıklar (Dahiliye)', 'İmmünoloji ve Alerji Hastalıkları', 'İş ve Meslek Hastalıkları', 'Jinekolojik Onkoloji Cerrahisi', 'Kadın Hastalıkları ve Doğum', 'Kalp ve Damar Cerrahisi', 'Kardiyoloji', 'Klinik Nörofizyoloji', 'Kulak Burun Boğaz Hastalıkları', 'Nefroloji', 'Neonatoloji', 'Nöroloji', 'Nükleer Tıp', 'Ortodonti', 'Ortopedi ve Travmatoloji', 'Perinatoloji', 'Periodontoloji', 'Plastik, Rekonstrüktif ve Estetik Cerrahi', 'Protetik Diş Tedavisi', 'Radyasyon Onkolojisi', 'Restoratif Diş Tedavisi', 'Romatoloji', 'Ruh Sağlığı ve Hastalıkları (Psikiyatri)', 'Sağlık Kurulu Erişkin', 'Sağlık Kurulu ÇÖZGER (Çocuk Özel Gereksinim Raporu)', 'Sigarayı Bıraktırma Kliniği', 'Spor Hekimliği', 'Sualtı Hekimliği ve Hiperbarik Tıp', 'Tıbbi Ekoloji ve Hidroklimatoloji', 'Tıbbi Genetik', 'Tıbbi Onkoloji', 'Uyku Polikliniği', 'Üroloji', 'Ağız, Diş ve Çene Cerrahisi', 'Ağız, Diş ve Çene Radyolojisi', 'Radyoloji']
-            14) Türkiye'de yürürlükte olan Tıbbi Deontoloji Nizamnamesi ve ilgili yasal düzenlemeler gereği, tanı koyma yetkisi sadece hekimlere aittir. Bu yasal zorunluluk ve kullanıcı sağlığını koruma sorumluluğum nedeniyle, kullanıcılara bir hastalık tanısı koymam mümkün değil. Tanı isteyen kullanıcılara bu mesajı kibar bir şekilde belirt.
+            14) Türkiye'de yürürlükte olan Tıbbi Deontoloji Nizamnamesi ve ilgili yasal düzenlemeler gereği, tanı koyma yetkisi sadece hekimlere aittir. Bu yasal zorunluluk ve kullanıcı sağlığını koruma sorumluluğum nedeniyle, kullanıcılara bir hastalık tanısı koymam mümkün değil. Tanı isteyen kullanıcılara bu mesajı ilet.
             15) Eğer tool çağrısı yaptığında bir hata alırsan, yaptığın geçmiş tool çağrısı mesajına ve error mesajına bakarak sebebini araştır. Hata senden kaynaklı çıkarsa hatanı düzelterek yeniden tool çağrısı yap. Sebep senden kaynaklı çıkmazsa kullanıcıya sistemde hata olduğunu bildir.
 
             """ + f"TOOLS_METADATA: {self.tools_metadata}" + """
@@ -82,10 +82,10 @@ class DiagnosisAgentTrial():
             "kronik_hastalık": ["astım"]
         }
 
-    def randevu_sürecini_başlat(self, klinik: str) -> dict:
+    def randevu_al(self, klinik: str) -> dict:
         # TODO: Change the topic flag
         self._create_report()
-        return {"randevu_agent_çalıştırıldı": True}
+        return {"randevu_agent_çalıştı": True}
 
     def _save_txt(self, content: str, filename: str):
         with open(filename, "w") as file:
