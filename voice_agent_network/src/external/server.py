@@ -10,16 +10,13 @@ from faster_whisper import WhisperModel
 from src.llm.core.devices import Device
 from TTS.api import TTS
 
-# --- 1. MODELLERİ UYGULAMA BAŞLANGICINDA BİR KEZ YÜKLE ---
-# Bu kısım sunucu çalıştığında sadece bir kez çalışır ve modelleri VRAM'e alır.
+
 print("AI Modelleri yükleniyor...")
 try:
     DEVICE = Device.CUDA.value
-    # DİKKAT: Faster-Whisper için model yolunuzu veya adınızı doğru girin.
     whisper_model = WhisperModel("medium", device=DEVICE, compute_type="float16")
 
-    # DİKKAT: CoquiTTS için model adınızı doğru girin.
-    tts_model_name = "tts_models/tr/common/vits"
+    tts_model_name = "tts_models/multilingual/multi-dataset/xtts_v2"
     tts_model = TTS(tts_model_name).to(DEVICE)
 
     # TTS modelinin orijinal örnekleme oranını alalım.
@@ -27,19 +24,17 @@ try:
 
 except Exception as e:
     print(f"Modeller yüklenirken kritik bir hata oluştu: {e}")
-    # Modeller yüklenemezse sunucunun başlamasını engelleyebilirsiniz.
     raise e
 
 print("AI Modelleri başarıyla yüklendi ve sunucu hazır.")
 
-# --- 2. FASTAPI UYGULAMASINI TANIMLA ---
 app = FastAPI(
     title="Uçtan Uca Sesli Asistan",
     description="Ses alır, işler ve sesli yanıt verir."
 )
 
 
-@app.post("/v1/audio_pipeline")
+@app.post("/of68s90/process_audio_endpoint")
 async def process_audio_endpoint(audio_file: UploadFile = File(...)):
     """
     Bu endpoint ses dosyasını işler ve yanıtı ses olarak stream eder.
@@ -59,6 +54,7 @@ async def process_audio_endpoint(audio_file: UploadFile = File(...)):
 
         # --- ADIM 2: Faster-Whisper ile Metne Çevir ---
         segments, _ = whisper_model.transcribe(input_waveform, beam_size=5, language="tr")
+
         transkript = " ".join([segment.text for segment in segments]).strip()
         print(f"Transkripsiyon Sonucu: {transkript}")
 
