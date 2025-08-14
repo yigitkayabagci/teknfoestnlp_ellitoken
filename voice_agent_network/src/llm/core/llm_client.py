@@ -59,10 +59,15 @@ class LlmClient(ABC):
         raise NotImplementedError
 
     # ---- Optional hook -----------------------------------------------------
-    def _maybe_parse_tool_call(self, text: str) -> Optional[Dict]:
+    def parse_tool_call(self, text: str) -> Optional[Dict]:
         if not text: return None
 
-        m = self._tool_call_re.match(text.strip())
+        tool_call_re = re.compile(
+            r'^TOOL_CALL:\s*(\{.*\})\s*$',
+            flags=re.DOTALL,
+        )
+
+        m = tool_call_re.match(text.strip())
         if not m: return None
 
         try:

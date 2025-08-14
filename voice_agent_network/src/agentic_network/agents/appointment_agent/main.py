@@ -1,17 +1,20 @@
 from __future__ import annotations
-import random
-from typing import TypedDict, Annotated, List, Dict
-from langgraph.graph.message import add_messages
+
+import re
+from typing import Optional, Dict
+
 from langgraph.graph import START, END, StateGraph
 from langgraph.prebuilt import ToolNode
-from langchain_core.messages import AnyMessage, HumanMessage, AIMessage, ToolMessage, SystemMessage
+from langchain_core.messages import HumanMessage, AIMessage, ToolMessage, SystemMessage
 from langchain_core.tools import tool
-import json
 from copy import copy
-import uuid
+import json, uuid
 
+from agentic_network.core import AgentState
+from agentic_network.core.topic_manager_util import add_message_to_dialogue
+from llm.core.gemma_based_model_adapter import GemmaBasedModelAdapter
+from llm.core.llm_singletons import llmSingleton
 from agent_tools import ToolManager
-from llm_client import GeneralLlmClient
 
 # 1. ToolManager örneğini oluştur ve araçları tanımla
 tool_manager_instance = ToolManager()
@@ -96,27 +99,27 @@ tools = [
     get_my_appointments
 ]
 
-# 2. LangGraph State Tanımla
-class AgentState(TypedDict):
-    messages: Annotated[List[AnyMessage], add_messages]
-    last_booked_appointment: Dict = None
 
-# Yeni LLM istemcisini oluştur
-client = GeneralLlmClient(model="llama3")    # you can change the model with change that line
+def parse_tool_call(text: str) -> Optional[Dict]:
+    if not text: return None
+
+    tool_call_re = re.compile(
+        r'^TOOL_CALL:\s*(\{.*\})\s*$',
+        flags=re.DOTALL,
+    )
+
+    m = tool_call_re.match(text.strip())
+    if not m: return None
+
+    try:
+        return json.loads(m.group(1))
+
+    except Exception:
+        return None
 
 # LLM'in araç çağrıları yapmasını sağlayan özel bir düğüm
 def call_llm(state: AgentState) -> dict:
-    messages = state['messages']
-    
-    # LangChain mesaj formatını kendi LLM istemcinizin beklediği formata dönüştürün
-    ollama_messages = [
-        {"role": "system", "content": m.content} if isinstance(m, SystemMessage)
-        else {"role": "user", "content": m.content} if isinstance(m, HumanMessage)
-        else {"role": "assistant", "content": m.content} if isinstance(m, AIMessage)
-        else {"role": "tool", "content": m.content} if isinstance(m, ToolMessage)
-        else {"role": "user", "content": str(m)} # Diğer mesaj tipleri için fallback
-        for m in messages
-    ]
+    messages = state["all_dialog"]
 
     tool_descriptions = json.dumps([
         {
@@ -138,13 +141,11 @@ def call_llm(state: AgentState) -> dict:
     Eğer bir tool çağırmana gerek yoksa, kullanıcıya doğrudan yanıt ver.
     """
     
-    # Son kullanıcı mesajından önceki tüm mesajlara SystemMessage ekleyin
-    updated_ollama_messages = [{"role": "system", "content": system_prompt}] + ollama_messages
-    
-    response = client.chat(updated_ollama_messages)
+    chat = GemmaBasedModelAdapter(llmSingleton.gemma_3_1b_it)
+    response = chat.invoke([SystemMessage(system_prompt), messages])
     
     # Kendi istemcimizin çıktısını LangGraph'ın beklediği formata dönüştürün
-    tool_call = response.get('tool_call') # .get() kullanarak KeyError'ı önleyin
+    tool_call = parse_tool_call(response)
     
     if tool_call:
         tool_message = AIMessage(
@@ -152,14 +153,13 @@ def call_llm(state: AgentState) -> dict:
             tool_calls=[{
                 "name": tool_call['name'],
                 "args": tool_call['args'],
-                "id": str(uuid.uuid4()) # Burada benzersiz bir ID oluşturup ekliyoruz
+                "id": str(uuid.uuid4())  # Burada benzersiz bir ID oluşturup ekliyoruz
             }]
         )
         return {"messages": [tool_message]}
     else:
-        return {"messages": [AIMessage(content=response['text'])]}
+        return {"messages": [AIMessage(content=response)]}
 
-# 3. Düğümleri ve Geçişleri Tanımlama
 tool_node = ToolNode(tools)
 
 def should_continue(state: AgentState) -> str:
@@ -211,6 +211,7 @@ workflow.add_node("action", tool_node)
 workflow.add_node("update_state", update_state_with_appointment)
 
 # Geçişleri tanımlama
+workflow.add_edge(START, "llm")
 workflow.add_conditional_edges(
     "llm",
     should_continue,
@@ -226,7 +227,7 @@ workflow.set_entry_point("llm")
 app = workflow.compile()
 
 # Main conversation loop (replaces your original run_agent function)
-def run_langgraph_agent():
+def run_langgraph_agent(agent_state: AgentState):
     system_prompt = """
     Rolünüz ve Yönergeleriniz
     Bir hastane ve doktor randevu sistemi için akıllı bir asistansınız. Temel göreviniz, kullanıcıların hastane, doktor ve randevu bilgilerine erişimini kolaylaştırmak ve rezervasyon sürecine yardımcı olmaktır. Doğru bilgi sağlamak ve görevleri tamamlamak için sağlanan tool'ları kullanmalısınız.
@@ -235,7 +236,7 @@ def run_langgraph_agent():
     **KURAL**: Unutma kullanıcıya tool bahsetmek kesinlikle yasak! Zaten kullanıcının tool erişimi yoktur, kullanamaz! Sistem tool kullanmayı kullanıcıdan gizli bir şekilde arka planda ele alır, tool çağrısı mesajını kullanıcıya iletmez.
     **KURAL**: Tool isimleri, parametreleri veya "TOOL_CALL" formatı kullanıcıya asla gösterilmez.
 
-    **YENİ GÜNCELLEME - KİMLİK DOĞRULAMA KURALI**:
+    **KİMLİK DOĞRULAMA KURALI**:
     Randevu oluşturma işlemi başlamadan önce, kullanıcının girdiği kimlik numarasını **doğrudan ve olduğu gibi** `authenticate_user` aracına iletmelisiniz.
     Kimlik doğrulama başarıyla tamamlanana kadar başka hiçbir adıma veya araca geçmeyin.
     Başarılı olursa, kullanıcıdan hastane aramak için şehir ve ilçe bilgisi isteyin.
@@ -278,16 +279,14 @@ def run_langgraph_agent():
     Diğer tüm tool'lar: Bu tool'ları yalnızca gerekli tüm parametreler mevcut olduğunda çağırın.
     """
 
-    full_conversation_history = [SystemMessage(content=system_prompt)]
+    # full_conversation_history = [SystemMessage(content=system_prompt)]
+
 
     print("Merhaba, ben sizin randevu asistanınızım. Size nasıl yardımcı olabilirim?")
     while True:
         user_prompt = input("Siz: ")
-        if user_prompt.lower() in ["çık", "exit"]:
-            print("Görüşmek üzere!")
-            break
 
-        full_conversation_history.append(HumanMessage(content=user_prompt))
+        var = add_message_to_dialogue(agent_state, HumanMessage(content=user_prompt))
 
         final_state = app.invoke({"messages": full_conversation_history})
 
@@ -295,8 +294,9 @@ def run_langgraph_agent():
         
         # Son yanıtı al ve kullanıcıya göster
         ai_response_content = ai_response_message.content
-        full_conversation_history.append(ai_response_message)
+        add_message_to_dialogue(agent_state, AIMessage(content=ai_response_message))
         print(f"Asistan: {ai_response_content}")
+
 
 if __name__ == "__main__":
     run_langgraph_agent()

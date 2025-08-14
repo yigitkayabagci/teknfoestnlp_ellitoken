@@ -3,23 +3,10 @@ from langchain_core.messages import AnyMessage, HumanMessage
 from langgraph.graph.message import add_messages
 
 
-class AppointmentData(TypedDict):
-    hospital_name: str
-    doctor_name: str
-    clinic: str
-    date: str
-    time: str
-
-class PersonData(TypedDict):
-    name: str
-    symptoms: list[str]
-    appointment_data: AppointmentData
-
-
 class Topic(TypedDict):
     id: str
     agent: str
-    person_data: PersonData
+    appointment_data: dict
 
 
 class AgentState(TypedDict):
