@@ -123,8 +123,15 @@ fun HomeScreen(
                         HomePageInfo(
                             iconRes = R.drawable.homepageinfo_calendar,
                             title = "Yaklaşan Randevular",
-                            description = "2 randevu",
-                            onClick = { },
+                            description = "3 randevu",
+                            onClick = {       navController.navigate(Screen.CalendarScreen.route) {
+                                popUpTo(navController.graph.findStartDestination().id) {
+                                    saveState = true
+                                }
+                                launchSingleTop = true
+                                restoreState = true
+                            }
+                                      },
                             outerPadding = 0.dp,
                             modifier = Modifier.weight(1f)
                         )

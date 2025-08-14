@@ -100,24 +100,24 @@ fun AppointmentListItem(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-
-                ActionButton(
-                    text = "Randevuyu Düzenle",
-                    onClick = onEditClick,
-                    isPrimary = true,
-                    modifier = Modifier.weight(1f)
-                )
-
-                ActionButton(
-                    text = "İptal Et",
-                    onClick = onCancelClick,
-                    isPrimary = false,
-                    modifier = Modifier.weight(1f)
-                )
+            if (appointmentWithStatus.status != "Tamamlandı") {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp)
+                ) {
+                    ActionButton(
+                        text = "Düzenle",
+                        onClick = onEditClick,
+                        isPrimary = true,
+                        modifier = Modifier.weight(1f)
+                    )
+                    ActionButton(
+                        text = "İptal Et",
+                        onClick = onCancelClick,
+                        isPrimary = false,
+                        modifier = Modifier.weight(1f)
+                    )
+                }
             }
         }
     }
@@ -149,7 +149,7 @@ fun ActionButton(
     Button(
         onClick = onClick,
         modifier = modifier.height(50.dp),
-        shape = RoundedCornerShape(12.dp),
+        shape = RoundedCornerShape(15.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = containerColor,
             contentColor = contentColor
@@ -160,7 +160,7 @@ fun ActionButton(
         Text(
             text = text,
             fontWeight = FontWeight.SemiBold,
-            fontSize = 12.sp
+            fontSize = 15.sp
         )
     }
 }
