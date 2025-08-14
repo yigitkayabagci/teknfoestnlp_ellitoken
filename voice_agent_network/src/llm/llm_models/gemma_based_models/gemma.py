@@ -1,5 +1,5 @@
 from llm.core.devices import Device
-from transformers import (BitsAndBytesConfig, AutoModelForCausalLM, AutoTokenizer)
+from transformers import (BitsAndBytesConfig, AutoModelForCausalLM, AutoTokenizer, AutoModel)
 from llama_cpp import Llama
 import accelerate
 import torch
@@ -23,13 +23,13 @@ class Gemma(GemmaBasedModel):
         Each tuple contains the folder name and a flag indicating if it's a GGUF model.
         The folder names are assumed to be local paths inside the 'gemma_models' directory.
         """
-        GEMMA_3_1B_IT_QAT_Q4_0_GGUF = ("../model_files/gemma_models/gemma-3-1b-it-qat-q4_0-gguf", True)
-        GEMMA_3_1B_IT_QAT_Q4_0_UNQUANTIZED = ("../model_files/gemma_models/gemma-3-1b-it-qat-q4_0-unquantized", False)
-        GEMMA_3_1B_IT = ("../model_files/gemma_models/gemma-3-1b-it", False)
-        GEMMA_3_4B_IT = ("../model_files/gemma_models/gemma-3-4b-it", False)
-        GEMMA_3_12B_IT = ("../model_files/gemma_models/gemma-3-12b-it", False)
-        GEMMA_3_12B_IT_QAT_Q4_0_GGUF = ("../model_files/gemma_models/gemma-3-12b-it-qat-q4_0-gguf", True)
-        GEMMA_3_12B_IT_QAT_Q4_0_UNQUANTIZED = ("../model_files/gemma_models/gemma-3-12b-it-qat-q4_0-unquantized", False)
+        GEMMA_3_1B_IT_QAT_Q4_0_GGUF = ("google/gemma-3-1b-it-qat-q4_0-gguf", True)
+        GEMMA_3_1B_IT_QAT_Q4_0_UNQUANTIZED = ("google/gemma-3-1b-it-qat-q4_0-unquantized", False)
+        GEMMA_3_1B_IT = ("google/gemma-3-1b-it", False)
+        GEMMA_3_4B_IT = ("google/gemma-3-4b-it", False)
+        GEMMA_3_12B_IT = ("google/gemma-3-12b-it", False)
+        GEMMA_3_12B_IT_QAT_Q4_0_GGUF = ("google/gemma-3-12b-it-qat-q4_0-gguf", True)
+        GEMMA_3_12B_IT_QAT_Q4_0_UNQUANTIZED = ("google/gemma-3-12b-it-qat-q4_0-unquantized", False)
 
         @property
         def _is_gguf(self):
@@ -95,11 +95,9 @@ class Gemma(GemmaBasedModel):
             # For other Hugging Face models, use AutoModelForCausalLM.
             quantization_config = BitsAndBytesConfig(load_in_4bit=True) if use_quantized else None
 
-            model = AutoModelForCausalLM.from_pretrained(
-                self.folder_path,
-                torch_dtype=torch.bfloat16,
-                device_map=self.device_map.value,
-                quantization_config=quantization_config
+            model = AutoModel.from_pretrained(
+                self.model_variant.value[0],
+                cache_dir="../model_files/gemma_models"
             )
 
         return model
@@ -113,7 +111,9 @@ class Gemma(GemmaBasedModel):
             return None
 
         # Use .folder_name to get the string from the Enum
-        tokenizer = AutoTokenizer.from_pretrained(self.folder_path)
+        tokenizer = AutoTokenizer.from_pretrained(
+            self.model_variant.value[0],
+            cache_dir="../model_files/gemma_models")
         return tokenizer
 
     def set_model_settings(self,

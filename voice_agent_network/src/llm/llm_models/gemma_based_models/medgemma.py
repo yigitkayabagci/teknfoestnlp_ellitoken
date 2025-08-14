@@ -1,7 +1,7 @@
 from llm.llm_models import GemmaBasedModel
 from src.llm.core.devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
-                          AutoModelForCausalLM, AutoTokenizer)
+                          AutoModelForCausalLM, AutoTokenizer, AutoModel)
 import torch
 import os
 from enum import Enum
@@ -20,9 +20,9 @@ class MedGemma(GemmaBasedModel):
 
         NOTE: These are assumed to be local folder names in the 'medgemma_models' directory.
         """
-        MEDGEMMA_4B_IT = "../model_files/medgemma_models/medgemma-4b-it"
-        MEDGEMMA_27B_IT = "../model_files/medgemma_models/medgemma-27b-it"
-        MEDGEMMA_27B_TEXT_IT = "../model_files/medgemma_models/medgemma-27b-text-it"
+        MEDGEMMA_4B_IT = "google/medgemma-4b-it"
+        MEDGEMMA_27B_IT = "google/medgemma-27b-it"
+        MEDGEMMA_27B_TEXT_IT = "google/medgemma-27b-text-it"
 
     def __init__(self,
                  use_quantized: bool,
@@ -52,23 +52,13 @@ class MedGemma(GemmaBasedModel):
         Loads the MedGemma model from a local directory.
         Quantizes the model to 4-bit if `use_quantized` is True.
         """
-        quantization_config = BitsAndBytesConfig(load_in_4bit=True) if use_quantized else None
 
-        # Determine which model class to use based on the model variant name
-        if "text" in self.model_variant.value:
-            model = AutoModelForCausalLM.from_pretrained(
-                self.folder_path,
-                torch_dtype=torch.bfloat16,
-                device_map=self.device_map.value,
-                quantization_config=quantization_config
-            )
-        else:
-            model = AutoModelForImageTextToText.from_pretrained(
-                self.folder_path,
-                torch_dtype=torch.bfloat16,
-                device_map=self.device_map.value,
-                quantization_config=quantization_config
-            )
+        model = AutoModel.from_pretrained(
+            self.model_variant.value,
+            cache_dir="../model_files/medgemma_models"
+        )
+
+
 
         return model
 
@@ -77,11 +67,11 @@ class MedGemma(GemmaBasedModel):
         Loads the appropriate processor or tokenizer for the model variant.
         """
         # Use .value to get the string from the Enum
-        if "text" in self.model_variant.value:
-            processor = AutoTokenizer.from_pretrained(self.folder_path)
-        else:
-            processor = AutoProcessor.from_pretrained(self.folder_path)
 
+        processor = AutoTokenizer.from_pretrained(
+            self.model_variant.value,
+            cache_dir="../model_files/medgemma_models",
+        )
         return processor
 
     def set_model_settings(self,
