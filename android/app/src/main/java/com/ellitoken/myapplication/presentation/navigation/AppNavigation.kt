@@ -48,6 +48,7 @@ fun AppNavigation(
         Screen.HomeScreen.route -> true
         Screen.CalendarScreen.route -> true
         Screen.ProfileScreen.route -> true
+        Screen.ChatSupportScreen.route -> true
         else -> false
     }
 
