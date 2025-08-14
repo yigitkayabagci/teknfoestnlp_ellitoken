@@ -22,10 +22,13 @@ def decide_pre_topic_found(agent_state: AgentState) -> TopicManagerRoutes:
        - FINAL ANSWER: NEW TOPIC
        - THOUGHT: anything...
    """
+    print("-decide: PRE TOPIC FOUND CONDITION-")
+
     ai_message = agent_state["all_dialog"][-1].content.upper()  # TODO: this should change to thought dialog
 
-    if ai_message.find("FINAL ANSWER"):
-        if ai_message.find("NEW"):
+    if "FINAL ANSWER" in ai_message:
+        if "NEW" in ai_message:
+            print("-this is a new topic, redirect to: NEW_TOPIC_AGENT")
             clean_thoughts(agent_state)
             return TopicManagerRoutes.NEW_TOPIC_AGENT
 
@@ -34,11 +37,18 @@ def decide_pre_topic_found(agent_state: AgentState) -> TopicManagerRoutes:
             topic_id = strip_braces(topic_id)
             topic_id = topic_id.lower()
 
-            if not _is_valid_uuid(topic_id): return TopicManagerRoutes.PRE_TOPICS_AGENT  # TODO: add the thought that the topic_id is not a valid uuid
-            if find_topic_index(agent_state, topic_id): return TopicManagerRoutes.PRE_TOPICS_AGENT  # TODO: add the thought that the topic_id cannot be found
+            if not _is_valid_uuid(topic_id):
+                print("-the topic id is not a valid uuid, redirect to: PRE_TOPICS_AGENT")
+                return TopicManagerRoutes.PRE_TOPICS_AGENT  # TODO: add the thought that the topic_id is not a valid uuid
 
+            if find_topic_index(agent_state, topic_id):
+                print("-the topic id could not be found in the topic stack, redirect to: PRE_TOPICS_AGENT")
+                return TopicManagerRoutes.PRE_TOPICS_AGENT  # TODO: add the thought that the topic_id cannot be found
+
+            print("-this is an older topic, redirect to: END")
             resurface_topic(agent_state, topic_id)
             clean_thoughts(agent_state)
             return TopicManagerRoutes.END
 
-    else: return TopicManagerRoutes.PRE_TOPICS_AGENT
+    print("-final answer is malformed, redirect to: PRE_TOPICS_AGENT")
+    return TopicManagerRoutes.PRE_TOPICS_AGENT

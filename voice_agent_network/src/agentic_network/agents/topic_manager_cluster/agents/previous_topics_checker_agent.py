@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, AIMessage, HumanMessage
 
 from agentic_network.agents.topic_manager_cluster.agents import TopicAgent
 from agentic_network.core import AgentState
@@ -13,6 +13,8 @@ class PreTopicsCheckerAgent(TopicAgent):
 
     # ---- Internal Methods --------------------------------------------------------d
     def _get_node(self, agent_state: AgentState) -> dict:
+        print("-PRE TOPICS CHECKER AGENT-")
+
         topic_stack = agent_state["topic_stack"]
         disclosed_topics = agent_state["disclosed_topics"]
         if not topic_stack and not disclosed_topics:
@@ -28,7 +30,7 @@ class PreTopicsCheckerAgent(TopicAgent):
         system_message = self._build_system_message(dialog, current_message, thoughts)
 
         return {
-            "thoughts": [chat.invoke([system_message])]
+            "thoughts": [chat.invoke([system_message, HumanMessage(content="Follow the instruction above and answer.")])]
         }
 
     def _build_system_message(self, dialog: str, message: str, thoughts: str) -> SystemMessage:
