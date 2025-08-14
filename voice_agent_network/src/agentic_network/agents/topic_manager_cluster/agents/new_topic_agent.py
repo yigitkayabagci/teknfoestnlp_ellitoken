@@ -1,4 +1,4 @@
-from langchain_core.messages import SystemMessage, AIMessage
+from langchain_core.messages import SystemMessage, HumanMessage
 
 from agentic_network.agents.topic_manager_cluster.agents import TopicAgent
 from agentic_network.core.topic_manager_util import format_dialog
@@ -13,6 +13,8 @@ class NewTopicAgent(TopicAgent):
 
     # ---- Internal Methods --------------------------------------------------------d
     def _get_node(self, agent_state: AgentState) -> dict:
+        print("-NEW TOPIC AGENT-")
+
         llm = GeminiClient()
         chat = LlmAdapter(llm, verbose=True)
         current_message = agent_state["current_message"]
@@ -20,7 +22,7 @@ class NewTopicAgent(TopicAgent):
         system_message = self._build_system_message(current_message, thoughts)
 
         return {
-            "thoughts": [chat.invoke([system_message])]
+            "thoughts": [chat.invoke([system_message, HumanMessage(content="Follow the instruction above and answer.")])]
         }
 
     def _build_system_message(self, message: str, thoughts: str) -> SystemMessage:

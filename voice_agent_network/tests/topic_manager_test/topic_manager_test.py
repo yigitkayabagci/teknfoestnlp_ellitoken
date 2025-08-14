@@ -2,16 +2,21 @@ from langchain_core.messages import AnyMessage
 from agentic_network.agents.topic_manager_cluster.topic_manager_cluster import TopicManagerCluster
 from agentic_network.core import AgentState
 
+
 def main():
     topic_manager = TopicManagerCluster()
 
     all_dialog: list[AnyMessage] = []
-    new_message: str = ""
+    current_message: str = ""
 
-    agent_state["current_message"] = "Merhaba, ben böbrek ağrılarımdan dolayı aradım."
+    agent_state: AgentState = {
+        "current_message": "Merhaba.",
+        "all_dialog": [],
+        "topic_stack": [],
+        "disclosed_topics": []
+    }
 
-    print(topic_manager.graph.invoke({"current_message"}))
-
+    print(topic_manager.graph.invoke(agent_state))
 
 
 if __name__ == "__main__":
