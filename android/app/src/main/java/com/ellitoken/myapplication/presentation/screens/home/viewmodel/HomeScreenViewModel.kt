@@ -1,81 +1,70 @@
 package com.ellitoken.myapplication.presentation.screens.home.viewmodel
 
+import android.Manifest
+import androidx.annotation.RequiresPermission
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.ellitoken.myapplication.presentation.screens.home.uistate.HomeScreenUiState
-import com.ellitoken.myapplication.presentation.screens.home.uistate.VoiceState
-import kotlinx.coroutines.delay
+import com.ellitoken.myapplication.presentation.screens.home.uistate.*
+import com.ellitoken.myapplication.data.domain.VoiceRecorder
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
 
-class HomeScreenViewModel : ViewModel() {
+// HomeScreenViewModel.kt
+class HomeScreenViewModel(
+    private val recorder: VoiceRecorder
+) : ViewModel() {
 
     private val _uiState = MutableStateFlow(HomeScreenUiState())
     val uiState: StateFlow<HomeScreenUiState> = _uiState.asStateFlow()
 
-
     init {
-        loadProfile()
-    }
+        _uiState.update { it.copy(userName = "Yusuf Asım", profileImageUrl = null) }
 
-    private fun loadProfile() {
-        _uiState.value = _uiState.value.copy(
-            userName = "Yusuf Asım",
-            profileImageUrl = null
-        )
-    }
-
-    fun startListening() {
-        // call start.
-        _uiState.update { currentState ->
-            currentState.copy(voiceState = VoiceState.Listening())
+        // VoiceRecorder callback'leri
+        recorder.onListeningStarted = {
+            _uiState.update { it.copy(voiceState = VoiceState.Listening()) }
+        }
+        recorder.onEndpointDetected = {
+            _uiState.update { it.copy(voiceState = VoiceState.Processing) }
+        }
+        recorder.onUploadingStarted = {
+            _uiState.update { it.copy(voiceState = VoiceState.Processing) }
+        }
+        recorder.onPlaybackStarted = {
+            _uiState.update { it.copy(voiceState = VoiceState.Speaking) }
+        }
+        recorder.onPlaybackCompleted = {
+            _uiState.update { it.copy(voiceState = VoiceState.Idle, isMicClicked = false) }
+            // İstersen burada otomatik tekrar dinlemeye al:
+            // startListening()
+        }
+        recorder.onError = { _, _ ->
+            _uiState.update { it.copy(voiceState = VoiceState.Idle, isMicClicked = false) }
         }
     }
 
+    @RequiresPermission(Manifest.permission.RECORD_AUDIO)
+    fun startListening() {
+        _uiState.update { it.copy(voiceState = VoiceState.Listening(), isMicClicked = true) }
+        recorder.startRecording()
+    }
 
     fun stopListeningAndProcess() {
-        if (_uiState.value.voiceState is VoiceState.Processing || _uiState.value.voiceState is VoiceState.Idle) return
-
-        _uiState.update { it.copy(voiceState = VoiceState.Processing) }
-
-        viewModelScope.launch {
-            // api call.
-            // Backend simülasyonu
-            println("SIMULATION: Sahte API isteği başladı...")
-            delay(2000) // 2 saniyelik sahte işlem süresi
-            println("SIMULATION: Sahte API isteği bitti.")
-
-            // "Speaking" durumuna geç
-            _uiState.update { it.copy(voiceState = VoiceState.Speaking) }
-
-            // AI'ın konuşmasının bittiğini simüle et
-            delay(3000) // 3 saniyelik sahte konuşma süresi
-            aiFinishedSpeaking()
-        }
+        recorder.forceStopAndSend()
+        // Sonraki geçişleri callback'ler yapacak (Processing → Speaking → Idle)
     }
-    fun aiFinishedSpeaking() {
-        // call when finish.
-        _uiState.update { it.copy(voiceState = VoiceState.Idle) }
-    }
-
-    fun updateAmplitude(newAmplitude: Float) {
-        //listening case. for animation
-        _uiState.update { currentState ->
-            if (currentState.voiceState is VoiceState.Listening) {
-                currentState.copy(
-                    voiceState = VoiceState.Listening(amplitude = newAmplitude)
-                )
-            } else {
-                currentState
-            }
-        }
-    }
-
 
     fun setMicClicked(clicked: Boolean) {
         _uiState.update { it.copy(isMicClicked = clicked) }
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+        // recorder.release() gibi bir şeyin varsa burada çağır
+    }
+
+    fun setSpeaking(value: Boolean) {
+        _uiState.update{it.copy(isSpeaking = value)}
     }
 }

@@ -1,5 +1,6 @@
 package com.ellitoken.myapplication.di
 
+import com.ellitoken.myapplication.data.domain.VoiceRecorder
 import com.ellitoken.myapplication.data.remote.repository.ChatSupportRepository
 import com.ellitoken.myapplication.presentation.screens.calendar.viewmodel.CalendarScreenViewModel
 import com.ellitoken.myapplication.presentation.screens.chatsupport.viewmodel.ChatSupportScreenViewModel
@@ -11,7 +12,9 @@ import org.koin.dsl.module
 
 val appModule = module {
     single { ChatSupportRepository() }
-    single { HomeScreenViewModel() }
+    factory { VoiceRecorder(androidContext()) }
+    single { HomeScreenViewModel(get()) }
+
     viewModel{ CalendarScreenViewModel() }
     viewModel{ ChatSupportScreenViewModel(get()) }
     viewModel{ ProfileScreenViewModel() }

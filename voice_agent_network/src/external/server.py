@@ -52,9 +52,8 @@ async def process_audio_endpoint(audio_file: UploadFile = File(...)):
             input_waveform = librosa.resample(input_waveform, orig_sr=original_sr, target_sr=target_sr)
             print(f"Ses {target_sr} Hz'e yeniden örneklendi.")
 
-        # --- ADIM 2: Faster-Whisper ile Metne Çevir ---
-        segments, _ = whisper_model.transcribe(input_waveform, beam_size=5, language="tr")
-
+        # --- ADIM 2: Faster-Whisper ile Metne Çevir ---         
+        segments, _ = whisper_model.transcribe(input_waveform, beam_size=10, language="tr",vad_filter=True, vad_parameters=dict(min_silence_duration_ms=800, max_speech_duration_s=15))     # eğer yavaşsa beam_size=5
         transkript = " ".join([segment.text for segment in segments]).strip()
         print(f"Transkripsiyon Sonucu: {transkript}")
 

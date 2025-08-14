@@ -114,12 +114,12 @@ dependencies {
     // implementation("com.github.gkonovalov.android-vad:webrtc:2.0.3")
 
     // VAD (Silero/)
-//    implementation("com.github.gkonovalov.android-vad:silero:2.0.10")
+    implementation("com.github.gkonovalov.android-vad:silero:2.0.3")
 //
 //
 //    // Opus (pure Java)
-//    implementation("io.github.jaredmdobson:concentus:1.0.2")
+    implementation("io.github.jaredmdobson:concentus:1.0.2")
 //
 //    //couroutines
-//    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 }

@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.ellitoken.myapplication.ui.theme.appBlue
 
 @Composable
 fun ListeningAnimation() {
@@ -44,13 +45,13 @@ fun ListeningAnimation() {
         horizontalArrangement = Arrangement.spacedBy(12.dp) // Daireler arası boşluk
     ) {
         Canvas(modifier = Modifier.size(20.dp)) {
-            drawCircle(color = Color.Blue.copy(alpha = alpha1))
+            drawCircle(color =  appBlue.copy(alpha = alpha1))
         }
         Canvas(modifier = Modifier.size(20.dp)) {
-            drawCircle(color = Color.Blue.copy(alpha = alpha2))
+            drawCircle(color = appBlue.copy(alpha = alpha2))
         }
         Canvas(modifier = Modifier.size(20.dp)) {
-            drawCircle(color = Color.Blue.copy(alpha = alpha3))
+            drawCircle(color = appBlue.copy(alpha = alpha3))
         }
     }
 }
