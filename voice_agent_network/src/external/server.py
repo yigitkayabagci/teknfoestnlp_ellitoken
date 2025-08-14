@@ -1,11 +1,3 @@
-from fastapi import FastAPI, UploadFile, File
-from fastapi.responses import StreamingResponse
-import io
-import numpy as np
-from scipy.io.wavfile import write
-import os
-from pathlib import Path
-
 import io
 import os
 import numpy as np
@@ -15,15 +7,16 @@ from pathlib import Path
 from fastapi import FastAPI, UploadFile, File, HTTPException
 from fastapi.responses import StreamingResponse
 from faster_whisper import WhisperModel
+from src.llm.core.devices import Device
 from TTS.api import TTS
 
 # --- 1. MODELLERİ UYGULAMA BAŞLANGICINDA BİR KEZ YÜKLE ---
 # Bu kısım sunucu çalıştığında sadece bir kez çalışır ve modelleri VRAM'e alır.
 print("AI Modelleri yükleniyor...")
 try:
-    DEVICE = "cuda"  # veya "cpu"
+    DEVICE = Device.CUDA.value
     # DİKKAT: Faster-Whisper için model yolunuzu veya adınızı doğru girin.
-    whisper_model = WhisperModel("large-v3", device=DEVICE, compute_type="float16")
+    whisper_model = WhisperModel("medium", device=DEVICE, compute_type="float16")
 
     # DİKKAT: CoquiTTS için model adınızı doğru girin.
     tts_model_name = "tts_models/tr/common/vits"
