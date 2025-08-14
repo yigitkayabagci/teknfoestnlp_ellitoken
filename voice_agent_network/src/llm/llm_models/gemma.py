@@ -63,7 +63,7 @@ class Gemma:
         # A dictionary to hold generation parameters that can be easily updated.
         self.model_settings = dict(max_new_tokens=400,
                                    do_sample=False,
-                                   temp=None,
+                                   temperature=None,
                                    top_p=None,
                                    top_k=None)
 
@@ -117,7 +117,7 @@ class Gemma:
     def set_model_settings(self,
                            max_new_tokens: int = None,
                            do_sample: bool = None,
-                           temp: float = None,
+                           temperature: float = None,
                            top_p: float = None,
                            top_k: int = None):
         """
@@ -126,7 +126,7 @@ class Gemma:
         Args:
             max_new_tokens (int): The maximum number of new tokens to generate.
             do_sample (bool): Whether to use sampling for generation.
-            temp (float): The sampling temperature.
+            temperature (float): The sampling temperature.
             top_p (float): The nucleus sampling probability.
             top_k (int): The number of top tokens to consider.
         """
