@@ -183,9 +183,14 @@ def format_dialog_with_topics(messages: Iterable[AnyMessage]) -> str:
         lines.append(f"{topic_tag}{_role_of(m)}: {_content_str(m)}")
     return "\n".join(lines)
 
+
 def format_dialog(messages: Iterable[AnyMessage]) -> str:
     """Format messages as lines without topic IDs."""
     return "\n".join(f"{_role_of(m)}: {_content_str(m)}" for m in messages)
+
+
+def redirect_to_appointment_agent(agent_state: AgentState):
+    get_current_topic(agent_state)["agent"] = GraphRoutes.APPOINTMENT_AGENT
 
 # tests:
 # messages = [add_topic_id_to_message(HumanMessage("hello!"), "12341235245"), HumanMessage("lets go!")]

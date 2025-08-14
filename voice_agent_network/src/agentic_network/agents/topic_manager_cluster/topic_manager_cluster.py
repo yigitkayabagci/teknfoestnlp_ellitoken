@@ -2,7 +2,7 @@ from langgraph.graph.state import CompiledStateGraph, StateGraph
 
 from agentic_network.agents.cluster_agent import ClusterAgent
 from agentic_network.agents.topic_manager_cluster.core import TopicManagerRoutes
-from agentic_network.agents.topic_manager_cluster.routing import topic_changed_condition, pre_topic_found_condition, new_topic_condition
+from agentic_network.agents.topic_manager_cluster.routing import decide_topic_has_changed, decide_pre_topic_found, decide_new_topic_found
 from agentic_network.agents.topic_manager_cluster.agents import TopicAgent, TopicChangeCheckerAgent
 from agentic_network.agents.topic_manager_cluster.agents import PreTopicsCheckerAgent, NewTopicAgent
 from agentic_network.core import AgentState
@@ -67,15 +67,15 @@ class TopicManagerCluster(ClusterAgent):
         # ---------------------- Conditional Routing -----------------------------------
         graph_builder.add_conditional_edges(
             TopicManagerRoutes.TOPIC_CHANGE_CHECKER_AGENT,
-            topic_changed_condition
+            decide_topic_has_changed
         )
         graph_builder.add_conditional_edges(
             TopicManagerRoutes.PRE_TOPICS_AGENT,
-            pre_topic_found_condition
+            decide_pre_topic_found
         )
         graph_builder.add_conditional_edges(
             TopicManagerRoutes.NEW_TOPIC_AGENT,
-            new_topic_condition
+            decide_new_topic_found
         )
 
         # ---------------------- Compile -----------------------------------------------
