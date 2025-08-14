@@ -1,4 +1,4 @@
-from llm.core import Device
+from src.llm.core.devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
 import torch
@@ -40,9 +40,9 @@ class MedGemma:
         self.processor = self._load_processor()
 
         # A dictionary to hold generation parameters, which can be easily updated.
-        self.model_settings = dict(max_new_tokens=400,
+        self.model_settings = dict(max_new_tokens=300,
                                    do_sample=False,
-                                   temp=None,
+                                   temperature=None,
                                    top_p=None,
                                    top_k=None)
 
@@ -86,7 +86,7 @@ class MedGemma:
     def set_model_settings(self,
                            max_new_tokens: int = None,
                            do_sample: bool = None,
-                           temp: float = None,
+                           temperature: float = None,
                            top_p: float = None,
                            top_k: int = None):
         """
