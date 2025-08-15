@@ -1,7 +1,5 @@
 from llm.core.devices import Device
 from transformers import (BitsAndBytesConfig, AutoModelForCausalLM, AutoTokenizer)
-from llama_cpp import Llama
-import accelerate
 import torch
 import os
 from enum import Enum

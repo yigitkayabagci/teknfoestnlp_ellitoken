@@ -1,5 +1,5 @@
 from llm.llm_models import GemmaBasedModel
-from src.llm.core.devices import Device
+from llm.core.devices import Device
 from transformers import (AutoProcessor, AutoModelForImageTextToText, BitsAndBytesConfig,
                           AutoModelForCausalLM, AutoTokenizer)
 import torch
