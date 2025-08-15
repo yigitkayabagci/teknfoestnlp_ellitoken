@@ -8,6 +8,7 @@ import com.ellitoken.myapplication.presentation.screens.chatsupport.uistate.AiMe
 import com.ellitoken.myapplication.presentation.screens.chatsupport.uistate.ChatSupportScreenUiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Clock
@@ -44,11 +45,30 @@ class ChatSupportScreenViewModel(
         }
 
         viewModelScope.launch {
-            repository.sendMessage(text).collect { aiMessage ->
-                _uiState.update {
-                    it.copy(messages = listOf(aiMessage) + it.messages, isLoading = false)
+            repository.sendMessage(text)
+                .catch { exception ->
+                    // API isteği sırasında bir hata oluşursa
+                    _uiState.update { currentState ->
+                        val errorMessage = AiMessage(
+                            id = UUID.randomUUID().toString(),
+                            createdAt = Clock.System.now(),
+                            message = "Hata: Mesaj gönderilemedi. Lütfen tekrar deneyin. (${exception.message})",
+                            fromAi = true
+                        )
+                        currentState.copy(
+                            messages = listOf(errorMessage) + currentState.messages,
+                            isLoading = false
+                        )
+                    }
                 }
-            }
+                .collect { aiMessage ->
+                    _uiState.update { currentState ->
+                        currentState.copy(
+                            messages = listOf(aiMessage) + currentState.messages,
+                            isLoading = false
+                        )
+                    }
+                }
         }
     }
 }

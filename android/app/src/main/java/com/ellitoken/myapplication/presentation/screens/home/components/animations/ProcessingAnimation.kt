@@ -6,12 +6,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.ellitoken.myapplication.ui.theme.appBlue
 
 @Composable
-fun ListeningAnimation() {
+fun ProcessingAnimation() {
     val transition = rememberInfiniteTransition()
 
     val alpha1 by transition.animateFloat(
