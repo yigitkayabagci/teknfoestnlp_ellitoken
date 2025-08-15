@@ -80,6 +80,8 @@ class AgentGraph:
         # ---------------------- Linear Edge(s) ----------------------------------------
         # Entry point: start the graph at Topic Manager.
         graph_builder.add_edge(GraphRoutes.START, GraphRoutes.TOPIC_MANAGER_AGENT)
+        graph_builder.add_edge(GraphRoutes.SMALL_TALK_AGENT, GraphRoutes.END)
+        graph_builder.add_edge(GraphRoutes.OUT_OF_TOPIC_AGENT, GraphRoutes.END)
 
         # ---------------------- Conditional Routing -----------------------------------
         # 1) Topic Manager decides which specialized cluster agent should handle the turn.

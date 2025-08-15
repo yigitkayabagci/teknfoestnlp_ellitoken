@@ -163,7 +163,7 @@ class AppointmentAgent(ClusterAgent):
         return {}
 
     def _should_continue(self, agent_state: AgentState) -> str:
-        last_message = get_messages_for_current_topic()[-1]
+        last_message = get_messages_for_current_topic(agent_state)[-1]
 
         if isinstance(last_message, AIMessage) and last_message.tool_calls:
             return "continue"
@@ -173,7 +173,7 @@ class AppointmentAgent(ClusterAgent):
 
     def update_state_with_appointment(self, agent_state: AgentState) -> dict:
         print("---Durum Güncelleniyor---")
-        last_message = get_messages_for_current_topic()[-1]
+        last_message = get_messages_for_current_topic(agent_state)[-1]
         
         if not isinstance(last_message, ToolMessage):
             print("Son mesaj bir ToolMessage değil.")
@@ -184,7 +184,7 @@ class AppointmentAgent(ClusterAgent):
             # last_message.tool_call doğrudan kullanılamaz, ToolMessage'ın kendisi bir tool_call içermez.
             # Bu bilgi genellikle AIMessage içinde yer alır. Bu nedenle bir önceki AIMessage'ı kontrol etmeliyiz.
             tool_call_info = None
-            messages = get_messages_for_current_topic()
+            messages = get_messages_for_current_topic(agent_state)
             if len(messages) >= 2 and isinstance(messages[-2], AIMessage) and messages[-2].tool_calls:
                 tool_call_info = messages[-2].tool_calls[0]  # İlk tool_call'ı al
 
