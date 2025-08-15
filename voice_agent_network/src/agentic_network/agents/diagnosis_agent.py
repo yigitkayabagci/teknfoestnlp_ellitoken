@@ -5,7 +5,7 @@ from langchain_core.messages import AIMessage, HumanMessage, AnyMessage
 
 from .cluster_agent import ClusterAgent
 from agentic_network.core import AgentState
-from agentic_network.core.topic_manager_util import get_messages_for_current_topic, add_message_to_dialogue
+from agentic_network.core.topic_manager_util import get_messages_for_current_topic, add_message_to_dialogue, redirect_to_appointment_agent
 from llm.core.gemma_based_model_adapter import GemmaBasedModelAdapter
 from llm.core.llm_singletons import llmSingleton
 
@@ -83,8 +83,8 @@ class DiognosisAgent(ClusterAgent):
             "kronik_hastalık": ["astım"]
         }
 
-    def randevu_al(self, klinik: str) -> dict:
-        # TODO: Change the topic flag
+    def randevu_al(self, agent_state: AgentState) -> dict:
+        redirect_to_appointment_agent(agent_state)
         self._create_report()
         return {"randevu_agent_çalıştı": True}
 

@@ -10,8 +10,9 @@ from langchain_core.tools import tool
 from copy import copy
 import json, uuid
 
+from agentic_network.agents import ClusterAgent
 from agentic_network.core import AgentState
-from agentic_network.core.topic_manager_util import add_message_to_dialogue
+from agentic_network.core.topic_manager_util import add_message_to_dialogue, get_messages_for_current_topic, get_current_topic
 from llm.core.gemma_based_model_adapter import GemmaBasedModelAdapter
 from llm.core.llm_singletons import llmSingleton
 from agent_tools import ToolManager
@@ -100,12 +101,12 @@ tools = [
 ]
 
 
-class AppointmentAgent:
+class AppointmentAgent(ClusterAgent):
     def __init__(self):
-        self.app = self._build_graph()
+        self.graph = self._build_graph()
         self.system_prompt = self._get_system_prompt()
 
-    def parse_tool_call(text: str) -> Optional[Dict]:
+    def _parse_tool_call(self, text: str) -> Optional[Dict]:
         if not text: return None
 
         tool_call_re = re.compile(
@@ -138,8 +139,8 @@ class AppointmentAgent:
         """
 
     # LLM'in araç çağrıları yapmasını sağlayan özel bir düğüm
-    def call_llm(self, state: AgentState) -> dict:
-        messages = state["all_dialog"]
+    def _call_llm(self, agent_state: AgentState) -> dict:
+        messages = agent_state["all_dialog"]
         chat = GemmaBasedModelAdapter(llmSingleton.gemma_3_1b_it)
         response = chat.invoke([SystemMessage(self.system_prompt), messages])
         
@@ -154,107 +155,89 @@ class AppointmentAgent:
                     "id": str(uuid.uuid4())
                 }]
             )
-            return {"messages": [tool_message]}
-        else:
-            return {"messages": [AIMessage(content=response)]}
+            add_message_to_dialogue(agent_state, tool_message)
 
-    def should_continue(state: AgentState) -> str:
-        last_message = state['messages'][-1]
+        else:
+            add_message_to_dialogue(agent_state, AIMessage(content=response))
+
+        return {}
+
+    def _should_continue(self, agent_state: AgentState) -> str:
+        last_message = get_messages_for_current_topic()[-1]
+
         if isinstance(last_message, AIMessage) and last_message.tool_calls:
             return "continue"
+
         else:
             return "end"
 
-    def update_state_with_appointment(state: AgentState) -> dict:
+    def update_state_with_appointment(self, agent_state: AgentState) -> dict:
         print("---Durum Güncelleniyor---")
-        last_message = state['messages'][-1]
+        last_message = get_messages_for_current_topic()[-1]
         
         if not isinstance(last_message, ToolMessage):
             print("Son mesaj bir ToolMessage değil.")
-            return state
+            return {}
 
         try:
             tool_output = json.loads(last_message.content)
             # last_message.tool_call doğrudan kullanılamaz, ToolMessage'ın kendisi bir tool_call içermez.
             # Bu bilgi genellikle AIMessage içinde yer alır. Bu nedenle bir önceki AIMessage'ı kontrol etmeliyiz.
             tool_call_info = None
-            if len(state['messages']) >= 2 and isinstance(state['messages'][-2], AIMessage) and state['messages'][-2].tool_calls:
-                tool_call_info = state['messages'][-2].tool_calls[0] # İlk tool_call'ı al
+            messages = get_messages_for_current_topic()
+            if len(messages) >= 2 and isinstance(messages[-2], AIMessage) and messages[-2].tool_calls:
+                tool_call_info = messages[-2].tool_calls[0]  # İlk tool_call'ı al
 
             if tool_call_info and tool_call_info.get('name') == 'book_appointment' and isinstance(tool_output, dict) and tool_output.get("status") == "success":
-                new_state = copy(state)
-                new_state['last_booked_appointment'] = {
+                new_appointment_data = copy(get_current_topic(agent_state)["appointment_data"])
+                new_appointment_data = {
                     "doctor_name": tool_output.get("randevu", {}).get("doktor"),
                     "date": tool_output.get("randevu", {}).get("tarih"),
                     "time": tool_output.get("randevu", {}).get("saat"),
                     "hospital": tool_output.get("randevu", {}).get("hastane_adi")
                 }
-                print(f"Yeni randevu bilgisi duruma eklendi: {new_state['last_booked_appointment']}")
-                return new_state
-        except (json.JSONDecodeError, KeyError, IndexError) as e: # IndexError'ı da ekleyelim
+                print(f"Yeni randevu bilgisi duruma eklendi: {new_appointment_data}")
+                get_current_topic(agent_state)["appointment_data"] = new_appointment_data
+                return {}
+
+        except (json.JSONDecodeError, KeyError, IndexError) as e:
             print(f"Tool çıktısı işlenirken hata oluştu: {e}")
             pass
                 
-        return state
-
+        return {}
 
     def _build_graph(self):
-        workflow = StateGraph(AgentState)
+        graph = StateGraph(AgentState)
         tool_node = ToolNode(tools)
 
         # Düğümleri ekleme
-        workflow.add_node("llm", self._call_llm)
-        workflow.add_node("action", tool_node)
-        workflow.add_node("update_state", self._update_state_with_appointment)
+        graph.add_node("llm", self._call_llm)
+        graph.add_node("action", tool_node)
+        graph.add_node("update_state", self._update_state_with_appointment)
 
         # Geçişleri tanımlama
-        workflow.add_edge(START, "llm")
-        workflow.add_conditional_edges(
+        graph.add_edge(START, "llm")
+        graph.add_conditional_edges(
             "llm",
             self._should_continue,
             {"continue": "action", "end": END}
         )
-        workflow.add_edge("action", "update_state")
-        workflow.add_edge("update_state", "llm")
+        graph.add_edge("action", "update_state")
+        graph.add_edge("update_state", "llm")
 
         # Başlangıç noktasını belirleme
-        workflow.set_entry_point("llm")
+        graph.set_entry_point("llm")
 
         # Grafiği derleme
-        return workflow.compile()
+        return graph.compile()
 
     def _get_node(self, agent_state: AgentState) -> dict:
-        # LangGraph'ı burada çağırıyoruz
-        final_state = self.app.invoke(agent_state)
-        # final_state['messages'] will contain the history of the last invocation
-        return final_state
-
-
-    def run_langgraph_agent(self, user_prompt: str, agent_state: AgentState):
-        agent = AppointmentAgent()   #or whatever you want
-
-
-        full_conversation_history = [SystemMessage(content=self.system_prompt)]
-        full_conversation_history.extend(agent_state["all_dialog"])
-            
-        new_state = add_message_to_dialogue(agent_state, HumanMessage(content=user_prompt))
-
-        final_state = self.app.invoke(new_state)
-
+        conversation_history = [SystemMessage(content=self.system_prompt)]
+        conversation_history.extend(get_messages_for_current_topic(agent_state))
 
         print("Merhaba, ben sizin randevu asistanınızım. Size nasıl yardımcı olabilirim?")
-        while True:
-            user_prompt = input("Siz: ")
-            
-            # Invoke the agent with the new user message
-            result_state = agent.run(user_prompt, initial_state)
-            
-            # Update the state for the next turn
-            initial_state = result_state
-            
-            # Extract and display the AI's response
-            ai_response_message = result_state['messages'][-1]
-            print(f"Asistan: {ai_response_message.content}")
+        self.graph.invoke(agent_state)
+        return {}
 
 
 """

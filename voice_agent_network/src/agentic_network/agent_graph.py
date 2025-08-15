@@ -2,7 +2,8 @@ from langgraph.graph.state import CompiledStateGraph
 from langgraph.graph import StateGraph
 
 from agentic_network.agents import ClusterAgent, TopicManagerCluster, DiognosisAgent
-from agentic_network.agents import AppointmentAgent, SmallTalkAgent, OutOfTopicAgent
+from agentic_network.agents import SmallTalkAgent, OutOfTopicAgent
+from agentic_network.agents.appointment_agent.main import AppointmentAgent
 from agentic_network.core import AgentState, GraphRoutes
 from agentic_network.routing import decide_cluster_agent, decide_topic_manager
 

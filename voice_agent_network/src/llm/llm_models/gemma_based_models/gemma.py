@@ -87,7 +87,7 @@ class Gemma(GemmaBasedModel):
             if not gguf_filename:
                 raise FileNotFoundError(f"No .gguf file found in the directory: {self.folder_path}")
 
-            model = Llama(self.folder_path + "/" + gguf_filename)
+            # model = Llama(self.folder_path + "/" + gguf_filename)
 
         else:
             # For other Hugging Face models, use AutoModelForCausalLM.
