@@ -223,51 +223,36 @@ class AppointmentAgent:
         # Grafiği derleme
         return workflow.compile()
 
-    def _get_node(self, agent_state: AgentState) -> dict:
-        # LangGraph'ı burada çağırıyoruz
-        final_state = self.app.invoke(agent_state)
-        # final_state['messages'] will contain the history of the last invocation
+    def run_agent(self, user_prompt: str, agent_state: AgentState) -> AgentState:
+        new_state = add_message_to_dialogue(agent_state, HumanMessage(content=user_prompt))
+        final_state = self.app.invoke(new_state)
         return final_state
 
 
-    def run_langgraph_agent(self, user_prompt: str, agent_state: AgentState):
-        agent = AppointmentAgent()   #or whatever you want
-
-
-        full_conversation_history = [SystemMessage(content=self.system_prompt)]
-        full_conversation_history.extend(agent_state["all_dialog"])
-            
-        new_state = add_message_to_dialogue(agent_state, HumanMessage(content=user_prompt))
-
-        final_state = self.app.invoke(new_state)
-
-
-        print("Merhaba, ben sizin randevu asistanınızım. Size nasıl yardımcı olabilirim?")
-        while True:
-            user_prompt = input("Siz: ")
-            
-            # Invoke the agent with the new user message
-            result_state = agent.run(user_prompt, initial_state)
-            
-            # Update the state for the next turn
-            initial_state = result_state
-            
-            # Extract and display the AI's response
-            ai_response_message = result_state['messages'][-1]
-            print(f"Asistan: {ai_response_message.content}")
-
-
-"""
-if __name__ == "__main__":
-    #agent = AppointmentAgent()
+def run_langgraph_agent():
+    print("Merhaba, ben sizin randevu asistanınızım. Size nasıl yardımcı olabilirim?")
+    agent = AppointmentAgent()
     
-    # Initialize a new AgentState for the conversation
+    # Yeni bir AgentState nesnesi oluştur
     initial_state = AgentState(
         all_dialog=[],
         last_booked_appointment=None,
         messages=[]
     )
-    run_langgraph_agent()   #parameters are needed
 
+    while True:
+        user_prompt = input("Siz: ")
+        if user_prompt.lower() in ["çıkış", "exit"]:
+            print("Görüşmek üzere!")
+            break
 
-"""
+        result_state = agent.run_agent(user_prompt, initial_state)
+        
+        # Son durumu bir sonraki döngü için güncelle
+        initial_state = result_state
+        
+        ai_response_message = result_state['messages'][-1]
+        print(f"Asistan: {ai_response_message.content}")
+
+if __name__ == "__main__":
+    run_langgraph_agent()
